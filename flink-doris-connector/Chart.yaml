@@ -1,0 +1,7 @@
+---
+apiVersion: v2
+name: flink-doris-connector
+description: Helm chart for flink-kubernetes-operator FlinkDeployment CRD.
+type: application
+version: "0.0.3"
+appVersion: "24.0.0"

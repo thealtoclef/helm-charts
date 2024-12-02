@@ -1,0 +1,106 @@
+nameOverride: ~
+fullnameOverride: ~
+
+labels: {}
+annotations: {}
+
+# Auth Proxy
+authProxy:
+  publicDB: false
+  autoIAMAuthn: false
+  serviceAccount: name@project.iam.gserviceaccount.com
+  resources:
+    limits:
+      cpu: 100m
+      memory: 256Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+# Sources
+sources: []
+# sources:
+#   - name: cake-mysql-stage
+#     auth_proxy: cloud_sql
+#     driver: mysql
+#     instance_uri: bef-cake-sandbox:asia-southeast1:cake-mysql8-stage
+#   - name: cake-alloydb-stage
+#     auth_proxy: alloydb
+#     driver: postgres
+#     instance_uri: projects/bef-cake-sandbox/locations/asia-southeast1/clusters/cake-alloydb-stage-cluster/instances/cake-alloydb-stage
+#   - name: mysql-example
+#     host: test.tld
+#     port: 3306
+#     username: debezium
+#     password: dbz
+
+# Sinks
+sinks: []
+# sinks:
+#   - name: doris-cluster
+#     fe_host: doris-cluster-fe-service.doris.svc.cluster.local
+#     fe_http_port: 8030
+#     fe_query_port: 9030
+#     username: flink-cdc
+#     password: flink-cdc
+
+image:
+  repository: flink
+  tag: "1.19"
+  digest: ~
+  pullPolicy: IfNotPresent
+flinkVersion: v1_19
+serviceAccount: flink
+jobManager:
+  replicas: 1
+  cpu: 0.01
+  cpuLimitFactor: 100
+  memory: 512Mi
+  memoryLimitFactor: 2
+taskManager:
+  replicas: 1
+  cpu: 0.01
+  cpuLimitFactor: 100
+  memory: 1024Mi
+  memoryLimitFactor: 2
+ingress: {}
+podLabels: {}
+podAnnotations: {}
+podSecurityContext: {}
+containerSecurityContext: {}
+env: {}
+persistence:
+  data:
+    enabled: false
+  artifacts:
+    enabled: false
+  log:
+    enabled: false
+objectStore: file:///opt/flink/data
+rocksDB:
+  enabled: false
+highAvailability:
+  enabled: false
+monitoring:
+  enabled: false
+  port: 9999
+global:
+  sourceRef: ~
+  sourceConf: {}
+  sinkRef: ~
+  sinkConf: {}
+  tableConf: {}
+  flinkConfiguration: {}
+sessionJobs: []
+# sessionJobs:
+#   - name: job-name
+#     labels:
+#       vault-injection: enabled
+#     job:
+#       sourceType: mysql
+#       sourceDatabase: inventory
+#       sinkDatabase: inventory_mysql
+#       excludingTables: geom
+#       sourceRef: mysql-example
+#       sinkRef: doris-cluster
+#     flinkConfiguration: {}

@@ -1,0 +1,84 @@
+{{- $namespace := $.Release.Namespace }}
+{{- range .Values.sessionJobs }}
+{{- $metadataName := printf "%s-%d" .name (int (default 0 .resetNonce)) }}
+{{- $sourceType := .job.sourceType }}
+{{- $sourceDatabase := .job.sourceDatabase }}
+{{- $slotName := (printf "%s-%s" $namespace .name) | replace "-" "_" }}
+{{- $sourceConfDefault := dict "database-name" $sourceDatabase "slot.name" $slotName }}
+---
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkSessionJob
+metadata:
+  name: {{ $metadataName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "helm-chart.labels" $ | nindent 4 }}
+  {{- if $.Values.labels }}
+    {{- toYaml $.Values.labels | nindent 4 }}
+  {{- end }}
+  {{- if $.Values.annotations }}
+  annotations:
+    {{- toYaml $.Values.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  deploymentName: {{ template "robustName" $.Release.Name }}
+  restartNonce: {{ default 0 .restartNonce }}
+  job:
+    jarURI: file:///opt/flink/lib/flink-doris-connector.jar
+    entryClass: org.apache.doris.flink.tools.cdc.CdcTools
+    parallelism: {{ default 1 .job.parallelism }}
+    state: {{ default "running" .job.state }}
+    upgradeMode: {{ default "savepoint" .job.upgradeMode }}
+    checkpointTriggerNonce: {{ default 0 .job.checkpointTriggerNonce }}
+    savepointTriggerNonce: {{ default 0 .job.savepointTriggerNonce }}
+    {{- if .job.initialSavepointPath }}
+    initialSavepointPath: {{ .job.initialSavepointPath }}
+    savepointRedeployNonce: {{ default 0 .job.savepointRedeployNonce }}
+    {{- end }}
+    args:
+      - {{ $sourceType }}-sync-database
+      - --database
+      - {{ .job.sinkDatabase }}
+      - --job-name
+      - {{ .name }}
+      {{- if .job.sinkTablePrefix }}
+      - --table-prefix
+      - {{ .job.sinkTablePrefix }}
+      {{- end }}
+      {{- if .job.sinkTableSuffix }}
+      - --table-suffix
+      - {{ .job.sinkTableSuffix }}
+      {{- end }}
+      {{- if .job.includingTables }}
+      - --including-tables
+      - {{ .job.includingTables }}
+      {{- end }}
+      {{- if .job.excludingTables }}
+      - --excluding-tables
+      - {{ .job.excludingTables }}
+      {{- end }}
+      {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.sourceRef .job.sourceRef)) | fromYaml) (default dict .job.sourceConf) $.Values.global.sourceConf $sourceConfDefault }}
+      - --{{ $sourceType }}-conf
+      - {{ $key }}={{ $value }}
+      {{- end }}
+      {{- range $key, $value := merge (include "getSinkDetails" (dict "root" $ "sinkRef" (default $.Values.global.sinkRef .job.sinkRef)) | fromYaml) (default dict .job.sinkConf) $.Values.global.sinkConf }}
+      - --sink-conf
+      - {{ $key }}={{ $value }}
+      {{- end }}
+      {{- range $key, $value := merge (default dict .job.tableConf) $.Values.global.tableConf }}
+      - --table-conf
+      - {{ $key }}={{ $value }}
+      {{- end }}
+  flinkConfiguration:
+    ### State directory configuration
+    state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
+    state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
+    {{- if .flinkConfiguration }}
+    ### User provided configuration
+    # flinkConfiguration must be map of str: str.
+    # Iterate through and quote the values, in case they look like integers.
+    {{- range $key, $val := .flinkConfiguration }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+    {{- end }}
+{{- end }}

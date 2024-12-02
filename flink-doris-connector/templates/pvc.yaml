@@ -1,0 +1,36 @@
+{{- range list "data" "artifacts" "log" }}
+{{- $config := index $.Values.persistence . }}
+{{- if and $config.enabled (not $config.csi) }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: flink-{{ . }}
+  namespace: {{ $.Release.Namespace }}
+  {{- if $config.annotations }}
+  annotations:
+    {{ $config.annotations | toYaml | indent 4 }}
+  {{- end }}
+  {{- if $config.labels }}
+  labels:
+    {{ $config.labels | toYaml | indent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ default "ReadWriteOnce" $config.accessMode }}
+  volumeMode: {{ default "Filesystem" $config.volumeMode}}
+  resources:
+    requests:
+      storage: {{ default "1Gi" $config.size }}
+  {{- if $config.volumeName }}
+  volumeName: {{ $config.volumeName }}
+  {{- end }}
+  {{- if $config.storageClass }}
+  storageClassName: {{ $config.storageClass }}
+  {{- end }}
+  {{- if $config.selector }}
+  selector:
+    {{ $config.selector | toYaml | indent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
