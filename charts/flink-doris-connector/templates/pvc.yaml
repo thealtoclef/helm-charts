@@ -1,4 +1,4 @@
-{{- range list "data" "artifacts" "log" }}
+{{- range list "data" "log" }}
 {{- $config := index $.Values.persistence . }}
 {{- if and $config.enabled (not $config.csi) }}
 ---

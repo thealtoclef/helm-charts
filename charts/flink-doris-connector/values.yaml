@@ -72,8 +72,6 @@ env: {}
 persistence:
   data:
     enabled: false
-  artifacts:
-    enabled: false
   log:
     enabled: false
 objectStore: file:///opt/flink/data

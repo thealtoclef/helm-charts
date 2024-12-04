@@ -65,7 +65,7 @@ spec:
             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
           {{- end }}
           volumeMounts:
-          {{- range list "data" "artifacts" "log" }}
+          {{- range list "data" "log" }}
             - name: flink-{{ . }}
               mountPath: /opt/flink/{{ . }}
           {{- end }}
@@ -76,7 +76,7 @@ spec:
             {{- end }}
           {{- end }}
       volumes:
-      {{- range list "data" "artifacts" "log" }}
+      {{- range list "data" "log" }}
         - name: flink-{{ . }}
           {{- $config := index $.Values.persistence . }}
           {{- if $config.enabled }}
