@@ -13,7 +13,7 @@ metadata:
     {{- toYaml .Values.annotations | nindent 4 }}
   {{- end }}
 spec:
-  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ if .Values.image.digest }}@sha256:{{ .Values.image.digest }}{{ end }}"
+  image: {{ include "flink.imagePath" . }}
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   flinkVersion: {{ .Values.flinkVersion }}
   serviceAccount: {{ default (include "helm-chart.fullname" .) .Values.serviceAccount }}
