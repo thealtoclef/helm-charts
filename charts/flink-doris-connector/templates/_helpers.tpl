@@ -59,6 +59,25 @@ Create robustName that can be used as Kubernetes resource name, and as subdomain
 {{ regexReplaceAll "\\W+" . "-" | replace "_" "-" | lower | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "standardize-digest" -}}
+{{- $digest := . -}}
+{{- if not (hasPrefix "sha256:" $digest) -}}
+{{- $digest = printf "sha256:%s" $digest -}}
+{{- end -}}
+{{- $digest -}}
+{{- end -}}
+
+{{/*
+Create the path of the operator image to use
+*/}}
+{{- define "flink.imagePath" -}}
+{{- if .Values.image.digest }}
+{{- .Values.image.repository }}@{{ include "standardize-digest" .Values.image.digest }}
+{{- else }}
+{{- .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
+{{- end }}
+{{- end }}
+
 {{/* Determine if cloud_sql is present */}}
 {{- define "auth_proxy.has_cloud_sql" -}}
 {{- $has_cloud_sql := false -}}
