@@ -5,49 +5,68 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
-  {{- if .Values.labels }}
-    {{- toYaml .Values.labels | nindent 4 }}
+  {{- with .Values.labels }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if .Values.annotations }}
+  {{- with .Values.annotations }}
   annotations:
-    {{- toYaml .Values.annotations | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   image: {{ include "flink.imagePath" . }}
   imagePullPolicy: {{ .Values.image.pullPolicy }}
   flinkVersion: {{ .Values.flinkVersion }}
   serviceAccount: {{ default (include "helm-chart.fullname" .) .Values.serviceAccount }}
-  restartNonce: {{ default 0 .Values.restartNonce }}
-  {{- if .Values.ingress }}
+  {{- with .Values.ingress }}
   ingress:
-    {{- toYaml .Values.ingress | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   jobManager:
     replicas: {{ .Values.jobManager.replicas }}
     resource:
       cpu: {{ .Values.jobManager.cpu }}
       memory: {{ .Values.jobManager.memory }}
+    {{- with .Values.jobManager.podTemplate }}
+    podTemplate:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   taskManager:
     replicas: {{ .Values.taskManager.replicas }}
     resource:
       cpu: {{ .Values.taskManager.cpu }}
       memory: {{ .Values.taskManager.memory }}
+    {{- with .Values.taskManager.podTemplate }}
+    podTemplate:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   podTemplate:
     {{- if or .Values.podLabels .Values.podAnnotations }}
     metadata:
-      {{- if .Values.podLabels }}
+      {{- with .Values.podLabels }}
       labels:
-        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.podAnnotations }}
+      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
     {{- end }}
     spec:
-      {{- if .Values.podSecurityContext }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- if or (eq (include "auth_proxy.has_cloud_sql" .) "true") (eq (include "auth_proxy.has_alloydb" .) "true") }}
       initContainers:
@@ -60,20 +79,18 @@ spec:
       {{- end }}
       containers:
         - name: flink-main-container
-          {{- if .Values.containerSecurityContext }}
+          {{- with .Values.containerSecurityContext }}
           securityContext:
-            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
           {{- range list "data" "log" }}
             - name: flink-{{ . }}
               mountPath: /opt/flink/{{ . }}
           {{- end }}
-          {{- if .Values.env }}
+          {{- with .Values.env }}
           env:
-            {{- if .Values.env | default false }}
-              {{- tpl (toYaml .Values.env) . | nindent 12 }}
-            {{- end }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
       {{- range list "data" "log" }}
@@ -96,7 +113,7 @@ spec:
     kubernetes.jobmanager.cpu.limit-factor: {{ .Values.jobManager.cpuLimitFactor | quote }}
     kubernetes.jobmanager.memory.limit-factor: {{ .Values.jobManager.memoryLimitFactor | quote }}
     kubernetes.taskmanager.cpu.limit-factor: {{ .Values.taskManager.cpuLimitFactor | quote }}
-    kubernetes.taskmanager.memory.limit-factor: {{ .Values.taskManager.memoryLimitFactor| quote }}
+    kubernetes.taskmanager.memory.limit-factor: {{ .Values.taskManager.memoryLimitFactor | quote }}
     ### RocksDB configuration
     {{- if .Values.rocksDB.enabled }}
     state.backend: rocksdb

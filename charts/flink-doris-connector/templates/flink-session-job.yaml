@@ -69,6 +69,17 @@ spec:
       - --table-conf
       - {{ $key }}={{ $value }}
       {{- end }}
+      {{- if or .job.schemaChangeMode $.Values.global.schemaChangeMode }}
+      - --schema-change-mode
+      - {{ default $.Values.global.schemaChangeMode .job.schemaChangeMode }}
+      {{- end }}
+      {{- if or .job.singleSink $.Values.global.singleSink }}
+      - --single-sink
+      - true
+      {{- end }}
+      {{- range concat (default list .job.extraArgs) (default list $.Values.global.extraArgs) }}
+      - {{ . }}
+      {{- end }}
   flinkConfiguration:
     ### State directory configuration
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints

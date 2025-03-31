@@ -46,10 +46,10 @@ sinks: []
 
 image:
   repository: flink
-  tag: "1.19"
+  tag: "1.20"
   digest: ~
   pullPolicy: IfNotPresent
-flinkVersion: v1_19
+flinkVersion: v1_20
 serviceAccount: flink
 jobManager:
   replicas: 1
@@ -57,13 +57,18 @@ jobManager:
   cpuLimitFactor: 100
   memory: 512Mi
   memoryLimitFactor: 2
+  podTemplate: {}
 taskManager:
   replicas: 1
   cpu: 0.01
   cpuLimitFactor: 100
   memory: 1024Mi
   memoryLimitFactor: 2
+  podTemplate: {}
 ingress: {}
+affinity: {}
+nodeSelector: {}
+tolerations: {}
 podLabels: {}
 podAnnotations: {}
 podSecurityContext: {}
@@ -88,6 +93,9 @@ global:
   sinkRef: ~
   sinkConf: {}
   tableConf: {}
+  schemaChangeMode: ~
+  singleSink: ~
+  extraArgs: []
   flinkConfiguration: {}
 sessionJobs: []
 # sessionJobs:
@@ -101,4 +109,7 @@ sessionJobs: []
 #       excludingTables: geom
 #       sourceRef: mysql-example
 #       sinkRef: doris-cluster
+#       schemaChangeMode: sql_parser
+#       singleSink: true
+#       extraArgs: []
 #     flinkConfiguration: {}
