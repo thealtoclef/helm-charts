@@ -1,0 +1,9 @@
+apiVersion: apps.foundationdb.org/v1beta2
+kind: FoundationDBCluster
+metadata:
+  name: {{ template "foundationdb-cluster.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "foundationdb-cluster.labels" . | nindent 4 }}
+spec:
+  {{- .Values.spec | toYaml | nindent 2 }}

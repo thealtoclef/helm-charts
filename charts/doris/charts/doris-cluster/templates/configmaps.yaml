@@ -1,0 +1,49 @@
+{{- if .Values.metaService.conf }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ms-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "doris-cluster.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ms
+data:
+  doris_cloud.conf: |
+    {{- .Values.metaService.conf | nindent 4 }}
+{{- end }}
+
+{{- if .Values.feSpec.conf }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fe-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "doris-cluster.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fe
+data:
+  fe.conf: |
+    {{- .Values.feSpec.conf | nindent 4 }}
+{{- end }}
+
+{{- if .Values.computeGroups }}
+{{- range .Values.computeGroups }}
+{{- if .conf }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: be-configmap-{{ .uniqueId }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "doris-cluster.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: be
+    uniqueId: {{ .uniqueId }}
+data:
+  be.conf: |
+    {{- .conf | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

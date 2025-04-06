@@ -1,0 +1,42 @@
+apiVersion: disaggregated.cluster.doris.com/v1
+kind: DorisDisaggregatedCluster
+metadata:
+  name: {{ template "doris-cluster.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "doris-cluster.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.authSecret }}
+  authSecret: {{ . }}
+  {{- end }}
+
+  {{- if .Values.metaService }}
+  metaService:
+    {{- with .Values.metaService.fdb }}
+    fdb:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- $componentValues := .Values.metaService }}
+    {{- $_ := set $componentValues "component" "ms" }}
+    {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
+  {{- end }}
+
+  {{- if .Values.feSpec }}
+  feSpec:
+    {{- with .Values.feSpec.electionNumber }}
+    electionNumber: {{ . }}
+    {{- end }}
+    {{- $componentValues := .Values.feSpec }}
+    {{- $_ := set $componentValues "component" "fe" }}
+    {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
+  {{- end }}
+  
+  {{- if .Values.computeGroups }}
+  computeGroups:
+  {{- range .Values.computeGroups }}
+  - uniqueId: {{ .uniqueId }}
+    {{- $componentValues := . }}
+    {{- $_ := set $componentValues "component" "cn" }}
+    {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
+  {{- end }}
+  {{- end }}

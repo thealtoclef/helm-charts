@@ -1,0 +1,38 @@
+{{- if .Values.rbac.create -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "foundationdb-cluster.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "foundationdb-cluster.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - "pods"
+    verbs:
+      - "get"
+      - "watch"
+      - "update"
+      - "patch"
+      - "list"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "foundationdb-cluster.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "foundationdb-cluster.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "foundationdb-cluster.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "foundationdb-cluster.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
