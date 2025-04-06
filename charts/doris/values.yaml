@@ -27,6 +27,7 @@ doris-cluster:
     enabled: false
     publicDB: false
     autoIAMAuthn: false
+    securityContext: {}
     resources: {}
     datasources: []
   

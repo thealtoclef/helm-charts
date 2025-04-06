@@ -235,17 +235,12 @@ initContainers:
     {{- end }}
   {{- end }}
   restartPolicy: Always
+  {{- with .Values.authProxy.securityContext }}
   securityContext:
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
-    runAsUser: 65534
-    runAsGroup: 65534
-    capabilities:
-      drop: ["ALL"]
-    seccompProfile:
-      type: RuntimeDefault
-  {{- if .Values.authProxy.resources }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.authProxy.resources }}
   resources:
-    {{- toYaml .Values.authProxy.resources | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end -}}
