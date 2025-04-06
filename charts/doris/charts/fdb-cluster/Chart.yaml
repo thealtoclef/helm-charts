@@ -1,5 +1,5 @@
 apiVersion: v2
-name: foundationdb-cluster
+name: fdb-cluster
 description: This helm chart is used to deploy CRs of fdb-kubernetes-operator.
 
 # A chart can be either an 'application' or a 'library' chart.
