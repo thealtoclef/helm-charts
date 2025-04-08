@@ -56,6 +56,9 @@ doris-resource-manager:
   host: ~
   port: 9030
   authSecret: ~
+  globalVariables: []
+    # - name: parallel_pipeline_task_num
+    #   value: 0
   storageVaults: []
     # - name: aws_s3_vault
     #   type: S3
