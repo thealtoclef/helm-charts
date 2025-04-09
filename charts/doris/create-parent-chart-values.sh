@@ -30,7 +30,8 @@ done
 # Add each subchart's values to the parent values file
 for subchart in "${SUBCHARTS[@]}"; do
   echo -e "\n$subchart:" >>"$PARENT_VALUES_FILE"
-  awk '{printf("  %s\n", $0);}' "$SCRIPT_DIR/charts/$subchart/values.yaml" >>"$PARENT_VALUES_FILE"
+  # Remove YAML document separators (---) and indent the content
+  grep -v "^---$" "$SCRIPT_DIR/charts/$subchart/values.yaml" | awk '{printf("  %s\n", $0);}' >>"$PARENT_VALUES_FILE"
 done
 
 echo "Generated parent chart values file: $PARENT_VALUES_FILE"
