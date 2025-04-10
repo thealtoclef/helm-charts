@@ -4,6 +4,9 @@ fullnameOverride: ~
 labels: {}
 annotations: {}
 
+# Flink Kubernetes Operator
+flink-kubernetes-operator: {}
+
 # Auth Proxy
 authProxy:
   publicDB: false
