@@ -149,6 +149,11 @@ doris-resource-manager:
     #     driver_class: org.postgresql.Driver
     #   propertiesSecret: postgres-catalog-secret
   users: []
+    # - username: admin
+    #   passwordSecretRef:
+    #     name: user-credentials
+    #     key: admin
+    #   manageGrants: false
     # - username: test_user
     #   passwordSecretRef:
     #     name: user-credentials
