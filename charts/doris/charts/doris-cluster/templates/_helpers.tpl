@@ -148,6 +148,10 @@ containerSecurityContext:
 envVars:
   {{- toYaml . | nindent 2 }}
 {{- end }}
+{{- with $componentValues.envFrom }}
+envFrom:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
 {{- with $componentValues.systemInitialization }}
 systemInitialization:
   {{- toYaml . | nindent 2 }}
