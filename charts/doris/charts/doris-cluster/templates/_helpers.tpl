@@ -85,8 +85,12 @@ startTimeout: {{ . }}
 {{- with $componentValues.liveTimeout }}
 liveTimeout: {{ . }}
 {{- end }}
-{{- with $componentValues.resources }}
-resources:
+{{- with $componentValues.requests }}
+requests:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $componentValues.limits }}
+limits:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 {{- with $componentValues.labels }}
