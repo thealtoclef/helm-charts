@@ -75,7 +75,7 @@ spec:
       {{- end }}
       {{- if or .job.singleSink $.Values.global.singleSink }}
       - --single-sink
-      - true
+      - {{ default $.Values.global.singleSink .job.singleSink }}
       {{- end }}
       {{- range concat (default list .job.extraArgs) (default list $.Values.global.extraArgs) }}
       - {{ . }}
