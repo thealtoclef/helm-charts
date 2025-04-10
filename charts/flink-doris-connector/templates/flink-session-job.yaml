@@ -36,49 +36,49 @@ spec:
     savepointRedeployNonce: {{ default 0 .job.savepointRedeployNonce }}
     {{- end }}
     args:
-      - {{ $sourceType }}-sync-database
+      - "{{ $sourceType }}-sync-database"
       - --database
-      - {{ .job.sinkDatabase }}
+      - {{ .job.sinkDatabase | quote }}
       - --job-name
-      - {{ .name }}
+      - {{ .name | quote }}
       {{- if .job.sinkTablePrefix }}
       - --table-prefix
-      - {{ .job.sinkTablePrefix }}
+      - {{ .job.sinkTablePrefix | quote }}
       {{- end }}
       {{- if .job.sinkTableSuffix }}
       - --table-suffix
-      - {{ .job.sinkTableSuffix }}
+      - {{ .job.sinkTableSuffix | quote }}
       {{- end }}
       {{- if .job.includingTables }}
       - --including-tables
-      - {{ .job.includingTables }}
+      - {{ .job.includingTables | quote }}
       {{- end }}
       {{- if .job.excludingTables }}
       - --excluding-tables
-      - {{ .job.excludingTables }}
+      - {{ .job.excludingTables | quote }}
       {{- end }}
       {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.sourceRef .job.sourceRef)) | fromYaml) (default dict .job.sourceConf) $.Values.global.sourceConf $sourceConfDefault }}
       - --{{ $sourceType }}-conf
-      - {{ $key }}={{ $value }}
+      - "{{ $key }}={{ $value }}"
       {{- end }}
       {{- range $key, $value := merge (include "getSinkDetails" (dict "root" $ "sinkRef" (default $.Values.global.sinkRef .job.sinkRef)) | fromYaml) (default dict .job.sinkConf) $.Values.global.sinkConf }}
       - --sink-conf
-      - {{ $key }}={{ $value }}
+      - "{{ $key }}={{ $value }}"
       {{- end }}
       {{- range $key, $value := merge (default dict .job.tableConf) $.Values.global.tableConf }}
       - --table-conf
-      - {{ $key }}={{ $value }}
+      - "{{ $key }}={{ $value }}"
       {{- end }}
       {{- if or .job.schemaChangeMode $.Values.global.schemaChangeMode }}
       - --schema-change-mode
-      - {{ default $.Values.global.schemaChangeMode .job.schemaChangeMode }}
+      - {{ default $.Values.global.schemaChangeMode .job.schemaChangeMode | quote }}
       {{- end }}
       {{- if or .job.singleSink $.Values.global.singleSink }}
       - --single-sink
-      - {{ default $.Values.global.singleSink .job.singleSink }}
+      - {{ default $.Values.global.singleSink .job.singleSink | quote }}
       {{- end }}
       {{- range concat (default list .job.extraArgs) (default list $.Values.global.extraArgs) }}
-      - {{ . }}
+      - {{ . | quote }}
       {{- end }}
   flinkConfiguration:
     ### State directory configuration

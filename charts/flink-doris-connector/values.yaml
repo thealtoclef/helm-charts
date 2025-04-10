@@ -113,6 +113,6 @@ sessionJobs: []
 #       sourceRef: mysql-example
 #       sinkRef: doris-cluster
 #       schemaChangeMode: sql_parser
-#       singleSink: "true"
+#       singleSink: true
 #       extraArgs: []
 #     flinkConfiguration: {}
