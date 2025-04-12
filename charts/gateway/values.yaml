@@ -7,14 +7,37 @@ listeners: []
   # - name: example-tcp
   #   protocol: TCP
   #   port: 5432
-  #   backend:
-  #     name: example-backend
-  #     namespace: example-namespace
-  #     port: 5432
+  #   routes:
+  #     - name: example-backend-tcp
+  #       rules:
+  #         - backendRefs:
+  #             name: example-backend-tcp
+  #             namespace: example-namespace
+  #             port: 5432
   # - name: example-http
   #   protocol: HTTP
-  #   port: 8080
-  #   backend:
-  #     name: example-backend
-  #     namespace: example-namespace
-  #     port: 8080
+  #   port: 80
+  #   routes:
+  #     - name: example-1
+  #       hostname: [example-1.com]
+  #       rules:
+  #         - backendRefs:
+  #             - name: example-backend-1
+  #               namespace: example-namespace
+  #               port: 8080
+  #     - name: example-2
+  #       hostname: [example-2.com]
+  #       rules:
+  #         - backendRefs:
+  #             - name: example-backend-2
+  #               namespace: example-namespace
+  #               port: 8081
+addresses:
+  []
+  # - type: IPAddress
+  #   value: 192.168.1.1
+  # - type: Hostname
+  #   value: example.com
+infrastructure: {}
+backendTLS: {}
+allowedListeners: {}

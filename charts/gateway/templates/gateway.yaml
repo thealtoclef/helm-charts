@@ -4,13 +4,44 @@ metadata:
   name: {{ template "gateway.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: {{ .Values.gatewayClassName }}
+  {{- with .Values.gatewayClassName }}
+  gatewayClassName: {{ . }}
+  {{- end }}
+
+  {{- with .Values.listeners }}
   listeners:
-  {{- range .Values.listeners }}
-  - protocol: {{ .protocol }}
-    port: {{ .port }}
-    name: {{ .name }}
-    allowedRoutes:
-      kinds:
-      - kind: {{ .protocol }}Route
+    {{- range . }}
+    - protocol: {{ .protocol }}
+      port: {{ .port }}
+      name: {{ .name }}
+      {{- with .hostname }}
+      hostname: {{ . }}
+      {{- end }}
+      allowedRoutes:
+        kinds:
+        - kind: {{ .protocol }}Route
+    {{- end }}
+  {{- end }}
+
+  {{- with .Values.addresses }}
+  addresses:
+    {{- range . }}
+    - type: {{ .type }}
+      value: {{ .value }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .Values.infrastructure }}
+  infrastructure:
+    {{- toYaml . | indent 2 }}
+  {{- end }}
+
+  {{- with .Values.backendTLS }}
+  backendTLS:
+    {{- toYaml . | indent 2 }}
+  {{- end }}
+
+  {{- with .Values.allowedListeners }}
+  allowedListeners:
+    {{- toYaml . | indent 2 }}
   {{- end }}
