@@ -13,7 +13,7 @@ spec:
     - name: {{ template "gateway.fullname" $ }}
       namespace: {{ $.Release.Namespace }}
       sectionName: {{ $sectionName }}
-  {{- with .hostname }}
+  {{- with .hostnames }}
   hostnames:
     {{- range . }}
     - {{ . }}
