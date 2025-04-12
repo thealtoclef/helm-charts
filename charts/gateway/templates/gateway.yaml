@@ -3,6 +3,15 @@ kind: Gateway
 metadata:
   name: {{ template "gateway.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gateway.labels" . | nindent 4 }}
+    {{- with .Values.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- with .Values.gatewayClassName }}
   gatewayClassName: {{ . }}
