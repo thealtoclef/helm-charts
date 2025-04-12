@@ -1,0 +1,17 @@
+{{- range .Values.listeners }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: {{ .protocol }}Route
+metadata:
+  name: {{ .name }}
+spec:
+  parentRefs:
+    - name: {{ template "gateway.fullname" $ }}
+      namespace: {{ $.Release.Namespace }}
+      sectionName: {{ .name }}
+  rules:
+    - backendRefs:
+        - name: {{ .backend.name }}
+          namespace: {{ .backend.namespace }}
+          port: {{ .backend.port }}
+{{- end }}

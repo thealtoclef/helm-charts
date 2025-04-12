@@ -1,0 +1,20 @@
+# Default values for gateway.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+gatewayClassName: ~
+listeners: []
+  # - name: example-tcp
+  #   protocol: TCP
+  #   port: 5432
+  #   backend:
+  #     name: example-backend
+  #     namespace: example-namespace
+  #     port: 5432
+  # - name: example-http
+  #   protocol: HTTP
+  #   port: 8080
+  #   backend:
+  #     name: example-backend
+  #     namespace: example-namespace
+  #     port: 8080
