@@ -1,10 +1,9 @@
 {{- range .Values.listeners }}
 {{- $sectionName := .name }}
-{{- $protocol := .protocol }}
 {{- range .routes }}
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
-kind: {{ $protocol }}Route
+kind: {{ .kind }}
 metadata:
   name: {{ .name }}
   namespace: {{ $.Release.Namespace }}

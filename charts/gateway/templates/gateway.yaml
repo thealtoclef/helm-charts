@@ -17,9 +17,6 @@ spec:
       {{- with .hostname }}
       hostname: {{ . }}
       {{- end }}
-      allowedRoutes:
-        kinds:
-        - kind: {{ .protocol }}Route
     {{- end }}
   {{- end }}
 
