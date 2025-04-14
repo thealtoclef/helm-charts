@@ -43,15 +43,15 @@ spec:
 
   {{- with .Values.infrastructure }}
   infrastructure:
-    {{- toYaml . | indent 2 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 
   {{- with .Values.backendTLS }}
   backendTLS:
-    {{- toYaml . | indent 2 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 
   {{- with .Values.allowedListeners }}
   allowedListeners:
-    {{- toYaml . | indent 2 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
