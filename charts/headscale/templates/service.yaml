@@ -5,7 +5,6 @@ metadata:
   labels:
     app: headplane
   name: headplane
-  namespace: headplane
 spec:
   ports:
   - name: headscale
