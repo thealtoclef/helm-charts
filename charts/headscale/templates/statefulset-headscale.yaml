@@ -25,6 +25,7 @@ spec:
         volumeMounts:
         - name: headscale-config
           mountPath: /etc/headscale
+          subPath: config.yaml
         envFrom:
           - secretRef:
               name: {{ .Values.headscale.secret.name }}
@@ -46,8 +47,10 @@ spec:
         volumeMounts:
         - name: headplane-config
           mountPath: /etc/headplane
+          subPath: config.yaml
         - name: headscale-config
           mountPath: /etc/headscale
+          subPath: config.yaml
       {{- end }}
       volumes:
         - name: headscale-config
