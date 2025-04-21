@@ -73,7 +73,7 @@ headplane:
       kubernetes:
         enabled: true
         validate_manifest: true
-        pod_name: "headplane-0"
+        pod_name: "headscale-0"
     oidc:
       issuer: "https://your-oidc-issuer-url.com"
       disable_api_key_login: "true"
