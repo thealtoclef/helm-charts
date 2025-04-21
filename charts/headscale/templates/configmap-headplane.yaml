@@ -1,18 +1,21 @@
----
+{{- if .Values.headplane.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: headplane-config
+  labels:
+    {{- include "headscale.labels" . | indent 4 }}
 data:
   config.yaml: |
     server:
-{{- toYaml .Values.headplane.config.server | nindent 6 }}
+      {{- toYaml .Values.headplane.config.server | nindent 6 }}
       cookie_secret: "yjbqijkvfrgrtwwkoanqquykeyuyzywd"
     headscale:
-{{- toYaml .Values.headplane.config.headscale | nindent 6 }}
+      {{- toYaml .Values.headplane.config.headscale | nindent 6 }}
     integration:
-{{- toYaml .Values.headplane.config.integration | nindent 6 }}
+      {{- toYaml .Values.headplane.config.integration | nindent 6 }}
     oidc:
-{{- toYaml .Values.headplane.config.oidc | nindent 6 }}
+      {{- toYaml .Values.headplane.config.oidc | nindent 6 }}
       client_secret: "secret"
       headscale_api_key: "secret"
+{{- end }}

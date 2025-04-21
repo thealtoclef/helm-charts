@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: headscale
+  labels:
+    {{- include "headscale.labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "headscale.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "headscale.labels" . | indent 4 }}
+    spec:
+      serviceAccountName: headscale
+      {{- if .Values.headplane.enabled }}
+      shareProcessNamespace: true
+      {{- end }}
+      containers:
+      - name: headscale
+        image: {{ .Values.headscale.image }}
+        args:
+          - serve
+        volumeMounts:
+        - name: headscale-config
+          mountPath: /etc/headscale
+        envFrom:
+          - secretRef:
+              name: {{ .Values.headscale.secret.name }}
+      {{- if .Values.headplane.enabled }}
+      - name: headplane
+        image: {{ .Values.headplane.image }}
+        envFrom:
+          - secretRef:
+              name: {{ .Values.headplane.secret.name }}
+          - secretRef:
+              name: headscale-api-token
+        env:
+        - name: HEADPLANE_LOAD_ENV_OVERRIDES
+          value: 'true'
+        - name: 'HEADPLANE_INTEGRATION__KUBERNETES__POD_NAME'
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: headplane-config
+          mountPath: /etc/headplane
+        - name: headscale-config
+          mountPath: /etc/headscale
+      {{- end }}
+      volumes:
+        - name: headscale-config
+          configMap:
+            name: headscale-config
+        {{- if .Values.headplane.enabled }}
+        - name: headplane-config
+          configMap:
+            name: headplane-config
+        {{- end }}

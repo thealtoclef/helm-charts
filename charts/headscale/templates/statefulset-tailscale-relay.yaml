@@ -1,5 +1,4 @@
 {{- if .Values.relay.enabled -}}
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
