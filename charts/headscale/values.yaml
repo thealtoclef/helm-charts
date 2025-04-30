@@ -63,7 +63,7 @@ headplane:
   enabled: true
   image:
     repository: ghcr.io/tale/headplane
-    tag: "0.5.5"
+    tag: "0.5.10"
   config:
     server:
       host: "0.0.0.0"
@@ -96,7 +96,7 @@ relay:
   enabled: true
   image:
     repository: ghcr.io/tailscale/tailscale
-    tag: "1.80.3"
+    tag: "v1.82.0"
   config:
     hostname: "example.com"
     exit_node: "example.com"
