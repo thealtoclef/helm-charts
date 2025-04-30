@@ -18,8 +18,10 @@ spec:
       serviceAccountName: "tailscale-relay"
       containers:
       - name: tailscale
-        image: {{ .Values.relay.image }}
-        imagePullPolicy: Always
+        image: "{{ .Values.relay.image.repository }}:{{ .Values.relay.image.tag }}"
+        {{- with .Values.relay.image.pullPolicy -}}
+        imagePullPolicy: {{ .Values.relay.image.pullPolicy }}
+        {{- end }}
         env:
         {{- $extraArgs := list }}
         {{- if .Values.relay.config.login_server }}

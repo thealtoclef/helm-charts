@@ -19,7 +19,10 @@ spec:
       {{- end }}
       containers:
       - name: headscale
-        image: {{ .Values.headscale.image }}
+        image: "{{ .Values.headscale.image.repository }}:{{ .Values.headscale.image.tag }}"
+        {{- with .Values.headscale.image.pullPolicy -}}
+        imagePullPolicy: {{ .Values.headscale.image.pullPolicy }}
+        {{- end }}
         args:
           - serve
         volumeMounts:
@@ -31,7 +34,10 @@ spec:
               name: {{ .Values.headscale.secret.name }}
       {{- if .Values.headplane.enabled }}
       - name: headplane
-        image: {{ .Values.headplane.image }}
+        image: "{{ .Values.headplane.image.repository }}:{{ .Values.headplane.image.tag }}"
+        {{- with .Values.headplane.image.pullPolicy -}}
+        imagePullPolicy: {{ .Values.headplane.image.pullPolicy }}
+        {{- end }}
         envFrom:
           - secretRef:
               name: {{ .Values.headplane.secret.name }}
