@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: headplane-config
   labels:
-    {{- include "headscale.labels" . | indent 4 }}
+    {{- include "headscale.labels" . | nindent 4 }}
 data:
   config.yaml: |
     {{- toYaml .Values.headplane.config | nindent 4 }}

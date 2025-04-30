@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
   name: headscale
   labels:
-    {{- include "headscale.labels" . | indent 4 }}
+    {{- include "headscale.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "headscale.labels" . | indent 4 }}
+        {{- include "headscale.labels" . | nindent 4 }}
     spec:
       serviceAccountName: headscale
       {{- if .Values.headplane.enabled }}

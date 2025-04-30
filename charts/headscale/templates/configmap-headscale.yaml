@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: headscale-config
   labels:
-    {{- include "headscale.labels" . | indent 4 }}
+    {{- include "headscale.labels" . | nindent 4 }}
 data:
   config.yaml: |
     {{- toYaml .Values.headscale.config | nindent 4 }}
