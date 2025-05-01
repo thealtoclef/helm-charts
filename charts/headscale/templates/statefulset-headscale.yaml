@@ -27,7 +27,7 @@ spec:
           - serve
         volumeMounts:
         - name: headscale-config
-          mountPath: /etc/headscale
+          mountPath: /etc/headscale/config.yaml
           subPath: config.yaml
         envFrom:
           - secretRef:
@@ -51,11 +51,11 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         volumeMounts:
-        - name: headplane-config
-          mountPath: /etc/headplane
-          subPath: config.yaml
         - name: headscale-config
-          mountPath: /etc/headscale
+          mountPath: /etc/headscale/config.yaml
+          subPath: config.yaml
+        - name: headplane-config
+          mountPath: /etc/headplane/config.yaml
           subPath: config.yaml
       {{- end }}
       volumes:
