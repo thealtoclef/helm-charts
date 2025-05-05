@@ -68,7 +68,6 @@ relay:
   config:
     hostname: example.com
     exit_node: example.com
-    login_server: https://vpn.example.com
     advertise_exit_node: true
     firewall_debug: false
     routes: 10.0.0.0/8
