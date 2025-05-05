@@ -15,7 +15,7 @@ spec:
       labels:
         app: tailscale
     spec:
-      serviceAccountName: "tailscale-relay"
+      serviceAccountName: tailscale-relay
       containers:
       - name: tailscale
         image: "{{ .Values.relay.image.repository }}:{{ .Values.relay.image.tag }}"
@@ -23,53 +23,59 @@ spec:
         imagePullPolicy: {{ .Values.relay.image.pullPolicy }}
         {{- end }}
         env:
-        {{- $extraArgs := list }}
-        {{- if .Values.relay.config.login_server }}
-        {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.relay.config.login_server) }}
+          {{- $extraArgs := list }}
+          {{- if .Values.relay.config.login_server }}
+          {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.relay.config.login_server) }}
+          {{- end }}
+          {{- if .Values.relay.config.advertise_exit_node }}
+          {{- $extraArgs = append $extraArgs "--advertise-exit-node" }}
+          {{- end }}
+          {{- if gt (len $extraArgs) 0 }}
+          - name: TS_EXTRA_ARGS
+            value: "{{ join " " $extraArgs }}"
+          {{- end }}
+          {{- if .Values.relay.config.exit_node }}
+          - name: TS_EXIT_NODE
+            value: "{{ .Values.relay.config.exit_node }}"
+          {{- end }}
+          {{- if .Values.relay.config.hostname }}
+          - name: TS_HOSTNAME
+            value: "{{ .Values.relay.config.hostname }}"
+          {{- end }}
+          {{- if .Values.relay.config.routes }}
+          - name: TS_ROUTES
+            value: "{{ .Values.relay.config.routes }}"
+          {{- end }}
+          {{- if .Values.relay.config.firewall_debug }}
+          - name: TS_DEBUG_FIREWALL_MODE
+            value: "{{ .Values.relay.config.firewall_debug }}"
+          {{- end }}
+          # Store the state in a k8s secret
+          - name: TS_KUBE_SECRET
+            value: "tailscale-auth"
+          - name: TS_USERSPACE
+            value: "true"
+          - name: TS_AUTHKEY
+            valueFrom:
+              secretKeyRef:
+                name: tailscale-auth
+                key: TS_AUTHKEY
+                optional: true
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_UID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
+          {{- with .Values.relay.env }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.relay.envFrom }}
+        envFrom:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .Values.relay.config.advertise_exit_node }}
-        {{- $extraArgs = append $extraArgs "--advertise-exit-node" }}
-        {{- end }}
-        {{- if gt (len $extraArgs) 0 }}
-        - name: TS_EXTRA_ARGS
-          value: "{{ join " " $extraArgs }}"
-        {{- end }}
-        {{- if .Values.relay.config.exit_node }}
-        - name: TS_EXIT_NODE
-          value: "{{ .Values.relay.config.exit_node }}"
-        {{- end }}
-        {{- if .Values.relay.config.hostname }}
-        - name: TS_HOSTNAME
-          value: "{{ .Values.relay.config.hostname }}"
-        {{- end }}
-        {{- if .Values.relay.config.routes }}
-        - name: TS_ROUTES
-          value: "{{ .Values.relay.config.routes }}"
-        {{- end }}
-        {{- if .Values.relay.config.firewall_debug }}
-        - name: TS_DEBUG_FIREWALL_MODE
-          value: "{{ .Values.relay.config.firewall_debug }}"
-        {{- end }}
-# Store the state in a k8s secret
-        - name: TS_KUBE_SECRET
-          value: "tailscale-auth"
-        - name: TS_USERSPACE
-          value: "true"
-        - name: TS_AUTHKEY
-          valueFrom:
-            secretKeyRef:
-              name: tailscale-auth
-              key: TS_AUTHKEY
-              optional: true
-
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_UID
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.uid
         securityContext:
           capabilities:
             add:
