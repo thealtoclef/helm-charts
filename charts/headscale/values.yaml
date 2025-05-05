@@ -2,27 +2,16 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+url: https://vpn.example.com
 headscale:
   image:
     repository: ghcr.io/juanfont/headscale
     tag: "0.25.1"
   config:
-    server_url: https://vpn.example.com
-    listen_addr: 0.0.0.0:8080
-    metrics_listen_addr: 0.0.0.0:9090
-    grpc_listen_addr: 0.0.0.0:50443
-    grpc_allow_insecure: false
     prefixes:
       v4: 100.64.0.0/10
       v6: fd7a:115c:a1e0::/48
       allocation: sequential
-    database:
-      type: sqlite
-      debug: false
-      sqlite:
-        path: /etc/headscale/db.sqlite
-    noise:
-      private_key_path: /etc/headscale/noise_private.key
     derp:
       server:
         enabled: false
@@ -61,22 +50,8 @@ headplane:
     repository: ghcr.io/tale/headplane
     tag: "0.5.10"
   config:
-    server:
-      host: "0.0.0.0"
-      port: 3000
-      cookie_secure: true
-      cookie_secret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa # placeholder only
-    headscale:
-      url: https://vpn.example.com
-      config_path: /etc/headscale/config.yaml
-      config_strict: true
-    integration:
-      kubernetes:
-        enabled: true
-        validate_manifest: true
-        pod_name: placeholder
     oidc:
-      issuer: https://your-oidc-issuer-url.com
+      issuer: https://your-oidc-issuer.com
       disable_api_key_login: true
       token_endpoint_auth_method: client_secret_post
       redirect_uri: https://your-headplane-admin-domain.com/admin/oidc/callback

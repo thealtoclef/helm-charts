@@ -24,9 +24,7 @@ spec:
         {{- end }}
         env:
           {{- $extraArgs := list }}
-          {{- if .Values.relay.config.login_server }}
-          {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.relay.config.login_server) }}
-          {{- end }}
+          {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.url) }}
           {{- if .Values.relay.config.advertise_exit_node }}
           {{- $extraArgs = append $extraArgs "--advertise-exit-node" }}
           {{- end }}

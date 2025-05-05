@@ -6,4 +6,23 @@ metadata:
     {{- include "headscale.labels" . | nindent 4 }}
 data:
   config.yaml: |
-    {{- toYaml .Values.headscale.config | nindent 4 }}
+    server_url: {{ .Values.url }}
+    listen_addr: 0.0.0.0:8080
+    metrics_listen_addr: 0.0.0.0:9090
+    grpc_listen_addr: 0.0.0.0:50443
+    grpc_allow_insecure: false
+    prefixes:
+      {{- toYaml .Values.headscale.config.prefixes | nindent 6 }}
+    database:
+      type: sqlite
+      debug: false
+      sqlite:
+        path: /etc/headscale/db.sqlite
+    noise:
+      private_key_path: /etc/headscale/noise_private.key
+    derp:
+      {{- toYaml .Values.headscale.config.derp | nindent 6 }}
+    dns:
+      {{- toYaml .Values.headscale.config.dns | nindent 6 }}
+    oidc:
+      {{- toYaml .Values.headscale.config.oidc | nindent 6 }}
