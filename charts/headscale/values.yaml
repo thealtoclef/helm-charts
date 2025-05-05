@@ -27,9 +27,9 @@ headscale:
       server:
         enabled: false
         region_id: 999
-        region_code: "headscale"
-        region_name: "Headscale Embedded DERP"
-        stun_listen_addr: "0.0.0.0:3478"
+        region_code: headscale
+        region_name: Headscale Embedded DERP
+        stun_listen_addr: 0.0.0.0:3478
         private_key_path: /var/lib/headscale/derp_server_private.key
         automatically_add_embedded_derp_region: true
         ipv4: 1.2.3.4
@@ -45,8 +45,8 @@ headscale:
           - 1.1.1.1
           - 8.8.8.8
     oidc:
-      issuer: "https://your-oidc-issuer.com"
-      client_id: "YOUR_OIDC_CLIENT_ID_FOR_HEADSCALE"
+      issuer: https://your-oidc-issuer.com
+      client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADSCALE
   #      allowed_groups:
   #        - vpn_access
   #     allowed_domains:
@@ -65,21 +65,24 @@ headplane:
       host: "0.0.0.0"
       port: 3000
       cookie_secure: true
+      cookie_secret: placeholder
     headscale:
-      url: "https://vpn.example.com"
-      config_path: "/etc/headscale/config.yaml"
-      config_strict: "true"
+      url: https://vpn.example.com
+      config_path: /etc/headscale/config.yaml
+      config_strict: true
     integration:
       kubernetes:
         enabled: true
         validate_manifest: true
-        pod_name: "headscale-0"
+        pod_name: placeholder
     oidc:
-      issuer: "https://your-oidc-issuer-url.com"
-      disable_api_key_login: "true"
-      token_endpoint_auth_method: "client_secret_post"
-      redirect_uri: "https://your-headplane-admin-domain.com/admin/oidc/callback"
-      client_id: "REPLACE_IT_WITH_YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE"
+      issuer: https://your-oidc-issuer-url.com
+      disable_api_key_login: true
+      token_endpoint_auth_method: client_secret_post
+      redirect_uri: https://your-headplane-admin-domain.com/admin/oidc/callback
+      client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE
+      client_secret: YOUR_OIDC_CLIENT_SECRET_FOR_HEADPLANE
+      headscale_api_key: placeholder
   env: []
   envFrom: []
 relay:
@@ -88,12 +91,12 @@ relay:
     repository: ghcr.io/tailscale/tailscale
     tag: "v1.82.0"
   config:
-    hostname: "example.com"
-    exit_node: "example.com"
-    login_server: "https://vpn.example.com"
-    advertise_exit_node: "true"
-    firewall_debug: "false"
-    routes: "10.0.0.0/8"
+    hostname: example.com
+    exit_node: example.com
+    login_server: https://vpn.example.com
+    advertise_exit_node: true
+    firewall_debug: false
+    routes: 10.0.0.0/8
   env: []
   envFrom: []
 service:
