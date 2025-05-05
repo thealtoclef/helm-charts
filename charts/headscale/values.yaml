@@ -34,6 +34,7 @@ headscale:
           - 1.1.1.1
           - 8.8.8.8
     oidc:
+      enabled: false
       issuer: https://your-oidc-issuer.com
       client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADSCALE
   #      allowed_groups:
@@ -49,15 +50,11 @@ headplane:
   image:
     repository: ghcr.io/tale/headplane
     tag: "0.5.10"
-  config:
-    oidc:
-      issuer: https://your-oidc-issuer.com
-      disable_api_key_login: true
-      token_endpoint_auth_method: client_secret_post
-      redirect_uri: https://your-headplane-admin-domain.com/admin/oidc/callback
-      client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE
-      client_secret: placeholder
-      headscale_api_key: placeholder
+    config:
+      oidc:
+        enabled: false
+        issuer: https://your-oidc-issuer.com
+        client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE
   env: []
   envFrom: []
 relay:

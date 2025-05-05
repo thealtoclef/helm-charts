@@ -21,5 +21,14 @@ data:
         enabled: true
         validate_manifest: true
         pod_name: placeholder
-    {{- toYaml .Values.headplane.config | nindent 4 }}
+    {{- if .Values.headplane.config.oidc.enabled -}}
+    oidc:
+      issuer: {{ .Values.headplane.config.oidc.issuer }}
+      disable_api_key_login: true
+      token_endpoint_auth_method: client_secret_post
+      redirect_uri: {{ .Values.headplane.config.oidc.redirect_uri | default printf "%s/admin/oidc/callback" .Values.url }}
+      client_id: {{ .Values.headplane.config.oidc.client_id }}
+      client_secret: placeholder
+      headscale_api_key: placeholder
+    {{- end }}
 {{- end }}
