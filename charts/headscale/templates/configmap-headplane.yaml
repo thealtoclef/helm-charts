@@ -21,7 +21,7 @@ data:
         enabled: true
         validate_manifest: true
         pod_name: placeholder
-    {{- if .Values.headplane.config.oidc.enabled -}}
+    {{- if .Values.headplane.config.oidc.enabled }}
     oidc:
       issuer: {{ .Values.headplane.config.oidc.issuer }}
       disable_api_key_login: true
