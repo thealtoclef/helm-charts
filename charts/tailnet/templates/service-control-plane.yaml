@@ -12,18 +12,19 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-type: {{ .Values.controlPlane.service.type }}
-ports:
-- name: headscale
-  port: 8080
-  protocol: TCP
-  targetPort: 8080
-{{- if .Values.controlPlane.headplane.enabled }}
-- name: headplane
-  port: 3000
-  protocol: TCP
-  targetPort: 3000
-{{- end }}
-selector:
-  {{- include "tailnet.selectorLabels" . | nindent 4 }}
-  app.kubernetes.io/component: control-plane
+spec:
+  type: {{ .Values.controlPlane.service.type }}
+  ports:
+  - name: headscale
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  {{- if .Values.controlPlane.headplane.enabled }}
+  - name: headplane
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  {{- end }}
+  selector:
+    {{- include "tailnet.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: control-plane
