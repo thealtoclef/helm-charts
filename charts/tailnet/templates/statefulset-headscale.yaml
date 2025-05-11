@@ -3,15 +3,18 @@ kind: StatefulSet
 metadata:
   name: headscale
   labels:
-    {{- include "headscale.labels" . | nindent 4 }}
+    {{- include "tailnet.labels" . | nindent 4 }}
+    app.kubernetes.io/component: control-plane
 spec:
   selector:
     matchLabels:
-      {{- include "headscale.selectorLabels" . | nindent 6 }}
+      {{- include "tailnet.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: control-plane
   template:
     metadata:
       labels:
-        {{- include "headscale.labels" . | nindent 8 }}
+        {{- include "tailnet.labels" . | nindent 8 }}
+        app.kubernetes.io/component: control-plane
     spec:
       serviceAccountName: headscale
       {{- if .Values.headplane.enabled }}

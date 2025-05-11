@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: headplane
+  name: {{ include "tailnet.fullname" . }}
   labels:
-    {{- include "headscale.labels" . | nindent 4 }}
+    {{- include "tailnet.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -18,4 +18,4 @@ spec:
     targetPort: 3000
   {{- end }}
   selector:
-    {{- include "headscale.selectorLabels" . | nindent 4 }}
+    {{- include "tailnet.selectorLabels" . | nindent 4 }}

@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: headplane-config
   labels:
-    {{- include "headscale.labels" . | nindent 4 }}
+    {{- include "tailnet.labels" . | nindent 4 }}
 data:
   config.yaml: |
     server:
@@ -13,7 +13,8 @@ data:
       cookie_secure: true
       cookie_secret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa # placeholder only
     headscale:
-      url: {{ .Values.url }}
+      url: http://{{ include "tailnet.fullname" . }}:8080
+      public_url: {{ .Values.url }}
       config_path: /etc/headscale/config.yaml
       config_strict: true
     integration:

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: headscale-config
   labels:
-    {{- include "headscale.labels" . | nindent 4 }}
+    {{- include "tailnet.labels" . | nindent 4 }}
 data:
   config.yaml: |
     server_url: {{ .Values.url }}
