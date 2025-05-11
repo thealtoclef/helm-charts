@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: tailscale-relay
+  name: relay
   labels:
     {{- include "tailnet.labels" . | nindent 4 }}
     app.kubernetes.io/component: relay
@@ -18,7 +18,7 @@ spec:
         {{- include "tailnet.labels" . | nindent 8 }}
         app.kubernetes.io/component: relay
     spec:
-      serviceAccountName: tailscale-relay
+      serviceAccountName: relay
       containers:
       - name: tailscale
         image: "{{ .Values.relay.image.repository }}:{{ .Values.relay.image.tag }}"
@@ -27,7 +27,7 @@ spec:
         {{- end }}
         env:
           {{- $extraArgs := list }}
-          {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.url) }}
+          {{- $extraArgs = append $extraArgs (printf "--login-server=%s" .Values.controlPlane.url) }}
           {{- if .Values.relay.config.advertise_exit_node }}
           {{- $extraArgs = append $extraArgs "--advertise-exit-node" }}
           {{- end }}

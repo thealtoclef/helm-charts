@@ -49,14 +49,3 @@ Selector labels
 app.kubernetes.io/name: {{ include "tailnet.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "tailnet.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "tailnet.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}

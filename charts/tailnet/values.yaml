@@ -2,62 +2,67 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-url: https://vpn.example.com
-headscale:
-  image:
-    repository: ghcr.io/juanfont/headscale
-    tag: "0.25.1"
-  config:
-    prefixes:
-      v4: 100.64.0.0/10
-      v6: fd7a:115c:a1e0::/48
-      allocation: sequential
-    derp:
-      server:
-        enabled: false
-        region_id: 999
-        region_code: headscale
-        region_name: Headscale Embedded DERP
-        stun_listen_addr: 0.0.0.0:3478
-        private_key_path: /var/lib/headscale/derp_server_private.key
-        automatically_add_embedded_derp_region: true
-        ipv4: 1.2.3.4
-        ipv6: 2001:db8::1
-      urls:
-        - https://controlplane.tailscale.com/derpmap/default
-      paths: []
-    dns:
-      magic_dns: true
-      base_domain: headscale.vpn
-      nameservers:
-        global:
-          - 1.1.1.1
-          - 8.8.8.8
-    oidc:
-      enabled: false
-      issuer: https://your-oidc-issuer.com
-      client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADSCALE
-  #      allowed_groups:
-  #        - vpn_access
-  #     allowed_domains:
-  #       - example.com
-  #     allowed_users:
-  #      - alice@example.com
-  env: []
-  envFrom: []
-headplane:
-  enabled: true
-  image:
-    repository: ghcr.io/tale/headplane
-    tag: "0.5.10"
+controlPlane:
+  url: https://vpn.example.com
+  service:
+    labels: {}
+    annotations: {}
+    type: ClusterIP
+  headscale:
+    image:
+      repository: ghcr.io/juanfont/headscale
+      tag: "0.25.1"
     config:
+      prefixes:
+        v4: 100.64.0.0/10
+        v6: fd7a:115c:a1e0::/48
+        allocation: sequential
+      derp:
+        server:
+          enabled: false
+          region_id: 999
+          region_code: headscale
+          region_name: Headscale Embedded DERP
+          stun_listen_addr: 0.0.0.0:3478
+          private_key_path: /var/lib/headscale/derp_server_private.key
+          automatically_add_embedded_derp_region: true
+          ipv4: 1.2.3.4
+          ipv6: 2001:db8::1
+        urls:
+          - https://controlplane.tailscale.com/derpmap/default
+        paths: []
+      dns:
+        magic_dns: true
+        base_domain: headscale.vpn
+        nameservers:
+          global:
+            - 1.1.1.1
+            - 8.8.8.8
       oidc:
         enabled: false
         issuer: https://your-oidc-issuer.com
-        client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE
-        redirect_uri: https://vpn.example.com/admin/oidc/callback
-  env: []
-  envFrom: []
+        client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADSCALE
+    #      allowed_groups:
+    #        - vpn_access
+    #     allowed_domains:
+    #       - example.com
+    #     allowed_users:
+    #      - alice@example.com
+    env: []
+    envFrom: []
+  headplane:
+    enabled: true
+    image:
+      repository: ghcr.io/tale/headplane
+      tag: "0.5.10"
+      config:
+        oidc:
+          enabled: false
+          issuer: https://your-oidc-issuer.com
+          client_id: YOUR_OIDC_CLIENT_ID_FOR_HEADPLANE
+          redirect_uri: https://vpn.example.com/admin/oidc/callback
+    env: []
+    envFrom: []
 relay:
   enabled: true
   image:
@@ -71,5 +76,3 @@ relay:
     routes: 10.0.0.0/8
   env: []
   envFrom: []
-service:
-  type: ClusterIP

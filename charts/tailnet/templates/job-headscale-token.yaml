@@ -1,7 +1,8 @@
+{{- if .Values.controlPlane.headplane.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: headscale-generate-token
+  name: headscale-token
 spec:
   template:
     spec:
@@ -38,3 +39,4 @@ spec:
 
               echo "Creating Kubernetes Secret..."
               kubectl create secret generic headscale-api-token --from-literal=HEADPLANE_OIDC__HEADSCALE_API_KEY="$TOKEN" -n {{ .Release.Namespace }}
+{{- end }}

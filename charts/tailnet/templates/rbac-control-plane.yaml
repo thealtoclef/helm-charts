@@ -1,4 +1,9 @@
-{{- if .Values.headplane.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: control-plane
+
+{{- if .Values.controlPlane.headplane.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -22,5 +27,5 @@ roleRef:
     name: headplane-agent
 subjects:
 - kind: ServiceAccount
-  name: headscale
+  name: control-plane
 {{- end }}

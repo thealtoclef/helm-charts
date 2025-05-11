@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: headscale
+  name: control-plane
   labels:
     {{- include "tailnet.labels" . | nindent 4 }}
     app.kubernetes.io/component: control-plane
@@ -16,15 +16,15 @@ spec:
         {{- include "tailnet.labels" . | nindent 8 }}
         app.kubernetes.io/component: control-plane
     spec:
-      serviceAccountName: headscale
-      {{- if .Values.headplane.enabled }}
+      serviceAccountName: control-plane
+      {{- if .Values.controlPlane.headplane.enabled }}
       shareProcessNamespace: true
       {{- end }}
       containers:
       - name: headscale
-        image: "{{ .Values.headscale.image.repository }}:{{ .Values.headscale.image.tag }}"
-        {{- with .Values.headscale.image.pullPolicy -}}
-        imagePullPolicy: {{ .Values.headscale.image.pullPolicy }}
+        image: "{{ .Values.controlPlane.headscale.image.repository }}:{{ .Values.controlPlane.headscale.image.tag }}"
+        {{- with .Values.controlPlane.headscale.image.pullPolicy -}}
+        imagePullPolicy: {{ .Values.controlPlane.headscale.image.pullPolicy }}
         {{- end }}
         args:
           - serve
@@ -32,24 +32,24 @@ spec:
         - name: headscale-config
           mountPath: /etc/headscale/config.yaml
           subPath: config.yaml
-        {{- with .Values.headscale.envFrom }}
+        {{- with .Values.controlPlane.headscale.envFrom }}
         envFrom:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.headscale.env }}
+        {{- with .Values.controlPlane.headscale.env }}
         env:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.headplane.enabled }}
+      {{- if .Values.controlPlane.headplane.enabled }}
       - name: headplane
-        image: "{{ .Values.headplane.image.repository }}:{{ .Values.headplane.image.tag }}"
-        {{- with .Values.headplane.image.pullPolicy -}}
-        imagePullPolicy: {{ .Values.headplane.image.pullPolicy }}
+        image: "{{ .Values.controlPlane.headplane.image.repository }}:{{ .Values.controlPlane.headplane.image.tag }}"
+        {{- with .Values.controlPlane.headplane.image.pullPolicy -}}
+        imagePullPolicy: {{ .Values.controlPlane.headplane.image.pullPolicy }}
         {{- end }}
         envFrom:
           - secretRef:
               name: headscale-api-token
-          {{- with .Values.headplane.envFrom -}}
+          {{- with .Values.controlPlane.headplane.envFrom -}}
           {{- toYaml . | nindent 10 }}
           {{- end }}
         env:
@@ -59,7 +59,7 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          {{- with .Values.headplane.env }}
+          {{- with .Values.controlPlane.headplane.env }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
         volumeMounts:
@@ -74,7 +74,7 @@ spec:
         - name: headscale-config
           configMap:
             name: headscale-config
-        {{- if .Values.headplane.enabled }}
+        {{- if .Values.controlPlane.headplane.enabled }}
         - name: headplane-config
           configMap:
             name: headplane-config
