@@ -69,10 +69,9 @@ relay:
     repository: ghcr.io/tailscale/tailscale
     tag: "v1.82.0"
   config:
-    hostname: example.com
-    exit_node: example.com
-    advertise_exit_node: true
+    hostname: relay
+    routes: ~
+    advertise_exit_node: false
     firewall_debug: false
-    routes: 10.0.0.0/8
   env: []
   envFrom: []

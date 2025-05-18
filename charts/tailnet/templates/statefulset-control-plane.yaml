@@ -46,19 +46,22 @@ spec:
         {{- with .Values.controlPlane.headplane.image.pullPolicy -}}
         imagePullPolicy: {{ .Values.controlPlane.headplane.image.pullPolicy }}
         {{- end }}
+        {{- with .Values.controlPlane.headplane.envFrom -}}
         envFrom:
-          - secretRef:
-              name: headscale-api-token
-          {{- with .Values.controlPlane.headplane.envFrom -}}
           {{- toYaml . | nindent 10 }}
-          {{- end }}
+        {{- end }}
         env:
           - name: HEADPLANE_LOAD_ENV_OVERRIDES
             value: 'true'
-          - name: 'HEADPLANE_INTEGRATION__KUBERNETES__POD_NAME'
+          - name: HEADPLANE_INTEGRATION__KUBERNETES__POD_NAME
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          - name: HEADPLANE_OIDC__HEADSCALE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: headscale-keys
+                key: API_KEY
           {{- with .Values.controlPlane.headplane.env }}
           {{- toYaml . | nindent 10 }}
           {{- end }}

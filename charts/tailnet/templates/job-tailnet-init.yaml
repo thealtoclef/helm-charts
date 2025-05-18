@@ -1,0 +1,50 @@
+{{- if .Values.controlPlane.headplane.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tailnet-init
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: tailnet-init
+      containers:
+        - name: generate-headscale-keys
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              echo "Waiting for headscale container to be Ready..."
+              while [ -z "$CONTAINER_STATUS" ]; do
+              CONTAINER_STATUS=$(kubectl get pod control-plane-0 -n {{ .Release.Namespace }} -o=jsonpath="{.status.containerStatuses[?(@.name==\"headscale\")].state.running}")
+                sleep 1
+              done
+
+              echo "Checking if Secret 'headscale-keys' exists..."
+              if kubectl get secret headscale-keys -n {{ .Release.Namespace }} >/dev/null 2>&1; then
+                echo "Secret already exists. Skipping keys generation."
+                exit 0
+              fi
+
+              echo "Secret not found. Generating Headscale keys..."
+
+              echo "Generating API key..."
+              API_KEY=$(kubectl -n {{ .Release.Namespace }} exec -i control-plane-0 -c headscale -- headscale apikeys create -e 100y)
+              if [ -z "$API_KEY" ]; then
+                echo "Failed to retrieve API key"
+                exit 1
+              fi
+
+              echo "Generating Auth key..."
+              AUTH_KEY=$(kubectl -n {{ .Release.Namespace }} exec -i control-plane-0 -c headscale -- headscale preauthkeys create --user relay)
+              if [ -z "$AUTH_KEY" ]; then
+                echo "Failed to retrieve Auth key"
+                exit 1
+              fi
+
+              echo "Creating Kubernetes Secret..."
+              kubectl create secret generic headscale-keys --from-literal=API_KEY="$API_KEY" --from-literal=AUTH_KEY="$AUTH_KEY" -n {{ .Release.Namespace }}
+{{- end }}

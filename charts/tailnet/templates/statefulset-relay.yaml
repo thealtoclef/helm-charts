@@ -35,10 +35,6 @@ spec:
           - name: TS_EXTRA_ARGS
             value: "{{ join " " $extraArgs }}"
           {{- end }}
-          {{- if .Values.relay.config.exit_node }}
-          - name: TS_EXIT_NODE
-            value: "{{ .Values.relay.config.exit_node }}"
-          {{- end }}
           {{- if .Values.relay.config.hostname }}
           - name: TS_HOSTNAME
             value: "{{ .Values.relay.config.hostname }}"
@@ -53,15 +49,14 @@ spec:
           {{- end }}
           # Store the state in a k8s secret
           - name: TS_KUBE_SECRET
-            value: "tailscale-auth"
+            value: relay
           - name: TS_USERSPACE
             value: "true"
           - name: TS_AUTHKEY
             valueFrom:
               secretKeyRef:
-                name: tailscale-auth
-                key: TS_AUTHKEY
-                optional: true
+                name: headscale-keys
+                key: AUTH_KEY
           - name: POD_NAME
             valueFrom:
               fieldRef:
