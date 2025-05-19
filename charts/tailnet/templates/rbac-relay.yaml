@@ -20,7 +20,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - tailscale-auth
+  - relay
   resources:
   - secrets
   verbs:
