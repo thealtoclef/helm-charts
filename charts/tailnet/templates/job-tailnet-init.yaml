@@ -38,8 +38,9 @@ spec:
                 exit 1
               fi
 
-              echo "Create user 'relay' and generate its Auth key..."
-              AUTH_KEY=$(kubectl -n {{ .Release.Namespace }} exec -i control-plane-0 -c headscale -- headscale user create relay && headscale preauthkeys create --user relay)
+              echo "Create user 'relay' if it doesn't exist and generate its Auth key..."
+              kubectl -n {{ .Release.Namespace }} exec -i control-plane-0 -c headscale -- headscale user create relay || true
+              AUTH_KEY=$(kubectl -n {{ .Release.Namespace }} exec -i control-plane-0 -c headscale -- headscale preauthkeys create --user relay)
               if [ -z "$AUTH_KEY" ]; then
                 echo "Failed to retrieve Auth key"
                 exit 1
