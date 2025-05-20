@@ -22,18 +22,30 @@ metadata:
   {{- end }}
 spec:
   deploymentName: {{ template "robustName" $.Release.Name }}
-  restartNonce: {{ default 0 .restartNonce }}
+  {{- with .restartNonce }}
+  restartNonce: {{ . }}
+  {{- end }}
   job:
     jarURI: file:///opt/flink/lib/flink-doris-connector.jar
     entryClass: org.apache.doris.flink.tools.cdc.CdcTools
-    parallelism: {{ default 1 .job.parallelism }}
-    state: {{ default "running" .job.state }}
-    upgradeMode: {{ default "savepoint" .job.upgradeMode }}
-    checkpointTriggerNonce: {{ default 0 .job.checkpointTriggerNonce }}
-    savepointTriggerNonce: {{ default 0 .job.savepointTriggerNonce }}
-    {{- if .job.initialSavepointPath }}
-    initialSavepointPath: {{ .job.initialSavepointPath }}
-    savepointRedeployNonce: {{ default 0 .job.savepointRedeployNonce }}
+    parallelism: {{ default $.Values.global.parallelism .job.parallelism }}
+    state: {{ default $.Values.global.state .job.state }}
+    upgradeMode: {{ default $.Values.global.upgradeMode .job.upgradeMode }}
+    allowNonRestoredState: {{ default $.Values.global.allowNonRestoredState .job.allowNonRestoredState }}
+    {{- with .job.checkpointTriggerNonce }}
+    checkpointTriggerNonce: {{ . }}
+    {{- end }}
+    {{- with .job.savepointTriggerNonce }}
+    savepointTriggerNonce: {{ . }}
+    {{- end }}
+    {{- with .job.initialSavepointPath }}
+    initialSavepointPath: {{ . }}
+    {{- end }}
+    {{- with .job.savepointRedeployNonce }}
+    savepointRedeployNonce: {{ . }}
+    {{- end }}
+    {{- with .job.autoscalerResetNonce }}
+    autoscalerResetNonce: {{ . }}
     {{- end }}
     args:
       - "{{ $sourceType }}-sync-database"

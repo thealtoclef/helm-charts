@@ -92,6 +92,10 @@ monitoring:
   enabled: false
   port: 9999
 global:
+  parallelism: 1
+  state: running
+  upgradeMode: savepoint
+  allowNonRestoredState: false
   sourceRef: ~
   sourceConf: {}
   sinkRef: ~
