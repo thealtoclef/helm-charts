@@ -5,7 +5,8 @@ labels: {}
 annotations: {}
 
 # Flink Kubernetes Operator
-flink-kubernetes-operator: {}
+operator:
+  enabled: true
 
 # Auth Proxy
 authProxy:
