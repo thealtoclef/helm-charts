@@ -61,27 +61,32 @@ doris-operator:
   # specific language governing permissions and limitations
   # under the License.
   
-  # Default values for operator.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
   
   dorisOperator:
-    # the namespace of dorisoperator, if not set, the release namespace will be used.
+    # the namespace of doris operator deployed, is not provided be set in values.yaml, please use the helm command specify, example "helm install -n doris"
     image:
       repository: apache/doris
       tag: operator-latest
-      imagePullPolicy: ""
-    # ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this deployment.
-    # If specified, these secrets will be passed to individual puller implementations for them to use.
-    #  imagePullSecret: "my-registry-key"
-    # Map of nodeSelectors to match when scheduling pods on nodes
+      imagePullSecret: ""
+      # ImagePullSecret specify the secret that record the credentials, if the repository of image is private. example as follows:
+      # imagePullSecret: "my-registry-key"
+      imagePullPolicy: "Always"
+      # imagePullPolicy
     nodeSelector: {}
+      # specify a class nodes to have the operator pod.
       # kubernetes.io/arch: amd64
       # kubernetes.io/os: linux
       # app.kubernetes.node.name: "k8s-node1"
-  
-    # node affinity for operator pod scheduling.
+    resources: {}
+    # resources used to specify compute resources, default is 2c 4Gi, the resource follow k8s requests and limits config.(https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
+    # requests:
+    #   memory: "4Gi"
+    #   cpu: 4
+    # limits:
+    #   memory: "4Gi"
+    #   cpu: 4
     nodeAffinity: {}
+    # node affinity for operator pod scheduling.
     #   requiredDuringSchedulingIgnoredDuringExecution:
     #     nodeSelectorTerms:
     #       - matchFields:
@@ -89,7 +94,8 @@ doris-operator:
     #             operator: In
     #             values:
     #               - target-host-name
-    enableWebhook: false
+    # create aggregate-cluster role, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+    enableAggregatedClusterRole: false
     podSecurityContext:
       runAsNonRoot: true
     securityContext:
@@ -97,13 +103,6 @@ doris-operator:
       capabilities:
         drop:
           - "ALL"
-    resources: {}
-      # requests:
-      #   cpu: 1
-      #   memory: 2Gi
-      # limits:
-      #   cpu: 2
-      #   memory: 4Gi
 
 doris-resource-manager:
   # Default values for manager.
@@ -254,15 +253,26 @@ fdb-cluster:
   spec: {}
 
 fdb-operator:
-  # Default values for fdb-cluster.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
-  
   image:
     repository: foundationdb/fdb-kubernetes-operator
-    tag: v2.3.0
+    tag: v2.5.0
     pullPolicy: IfNotPresent
-  initContainers: {}
+  initContainers:
+    7.1:
+      image:
+        repository: foundationdb/fdb-kubernetes-monitor
+        tag: 7.1.67
+        pullPolicy: IfNotPresent
+    7.3:
+      image:
+        repository: foundationdb/fdb-kubernetes-monitor
+        tag: 7.3.63
+        pullPolicy: IfNotPresent
+    7.4:
+      image:
+        repository: foundationdb/fdb-kubernetes-monitor
+        tag: 7.4.1
+        pullPolicy: IfNotPresent
   globalMode:
     enabled: false
   replicas: null

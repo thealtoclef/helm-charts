@@ -21,7 +21,7 @@ metadata:
   labels:
     app.kubernetes.io/created-by: {{ template "kube-doris.name" . }}-operator
     app.kubernetes.io/part-of: {{ template "kube-doris.name" . }}-operator
-  name: {{ template "webhook.serviceName" . }}
+  name: {{ template "kube-doris.name" . }}-service
   namespace: {{ template "operator.namespace" . }}
 spec:
   ports:

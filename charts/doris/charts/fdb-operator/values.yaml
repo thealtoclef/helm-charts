@@ -1,12 +1,24 @@
-# Default values for fdb-cluster.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
+---
 image:
   repository: foundationdb/fdb-kubernetes-operator
-  tag: v2.3.0
+  tag: v2.5.0
   pullPolicy: IfNotPresent
-initContainers: {}
+initContainers:
+  7.1:
+    image:
+      repository: foundationdb/fdb-kubernetes-monitor
+      tag: 7.1.67
+      pullPolicy: IfNotPresent
+  7.3:
+    image:
+      repository: foundationdb/fdb-kubernetes-monitor
+      tag: 7.3.63
+      pullPolicy: IfNotPresent
+  7.4:
+    image:
+      repository: foundationdb/fdb-kubernetes-monitor
+      tag: 7.4.1
+      pullPolicy: IfNotPresent
 globalMode:
   enabled: false
 replicas: null

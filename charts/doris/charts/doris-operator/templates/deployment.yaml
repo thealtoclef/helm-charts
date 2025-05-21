@@ -102,7 +102,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: SERVICE_NAME
-              value: {{ template "webhook.serviceName" . }}
+              value: {{ template "operator.serviceName" . }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -121,7 +121,7 @@ spec:
           {{- if .Values.dorisOperator.resources -}}
             {{- toYaml .Values.dorisOperator.resources | nindent 12 }}
           {{- else -}}
-            {{- include "operator.default.resource" . | indent 8 }}
+            {{- include "operator.default.resources" . | indent 8 }}
           {{- end }}
           volumeMounts:
             - mountPath:  /tmp/k8s-webhook-server/serving-certs

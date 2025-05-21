@@ -1,6 +1,6 @@
 apiVersion: v2
 name: doris
-description: "doris umbrella chart that includes three subcharts: fdb-cluster, doris-cluster and doris-resource-manager"
+description: Doris umbrella chart
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,30 +15,30 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: "0.1.5"
+version: 0.1.6
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.1.0"
+appVersion: 0.1.0
 
 dependencies:
   - name: fdb-operator
-    version: "0.1.0"
-    repository: "file://charts/fdb-operator"
+    version: 0.1.0
+    repository: file://charts/fdb-operator
   - name: fdb-cluster
-    version: "0.1.0"
-    repository: "file://charts/fdb-cluster"
+    version: 0.1.0
+    repository: file://charts/fdb-cluster
   - name: doris-operator
-    version: "0.1.0"
-    repository: "file://charts/doris-operator"
+    version: 0.1.0
+    repository: file://charts/doris-operator
   - name: doris-cluster
-    version: "0.1.0"
-    repository: "file://charts/doris-cluster"
+    version: 0.1.0
+    repository: file://charts/doris-cluster
   - name: doris-resource-operator
-    version: "0.1.0"
-    repository: "file://charts/doris-resource-operator"
+    version: 0.1.0
+    repository: file://charts/doris-resource-operator
   - name: doris-resource-manager
-    version: "0.1.0"
-    repository: "file://charts/doris-resource-manager"
+    version: 0.1.0
+    repository: file://charts/doris-resource-manager
