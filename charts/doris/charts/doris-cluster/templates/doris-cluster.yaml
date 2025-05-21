@@ -35,10 +35,10 @@ spec:
   computeGroups:
   {{- range .Values.computeGroups }}
   - uniqueId: {{ .uniqueId }}
-    {{- with .enableWorkloadGroup -}}
+    {{- with .enableWorkloadGroup }}
     enableWorkloadGroup: {{ . }}
     {{- end }}
-    {{- with .skipDefaultSystemInit -}}
+    {{- with .skipDefaultSystemInit }}
     skipDefaultSystemInit: {{ . }}
     {{- end }}
     {{- $componentValues := . }}
