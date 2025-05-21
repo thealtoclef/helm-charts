@@ -77,7 +77,8 @@ podLabels: {}
 podAnnotations: {}
 podSecurityContext: {}
 containerSecurityContext: {}
-env: {}
+env: []
+envFrom: []
 persistence:
   data:
     enabled: false
