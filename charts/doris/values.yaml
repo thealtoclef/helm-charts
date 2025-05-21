@@ -41,6 +41,8 @@ doris-cluster:
   
   computeGroups:
     - uniqueId: ~
+      enableWorkloadGroup: ~
+      skipDefaultSystemInit: ~
       conf: ~
 
 doris-operator:

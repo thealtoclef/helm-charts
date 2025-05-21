@@ -35,4 +35,6 @@ feSpec:
 
 computeGroups:
   - uniqueId: ~
+    enableWorkloadGroup: ~
+    skipDefaultSystemInit: ~
     conf: ~

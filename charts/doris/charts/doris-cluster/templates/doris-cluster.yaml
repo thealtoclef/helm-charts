@@ -35,6 +35,12 @@ spec:
   computeGroups:
   {{- range .Values.computeGroups }}
   - uniqueId: {{ .uniqueId }}
+    {{- with .enableWorkloadGroup -}}
+    enableWorkloadGroup: {{ . }}
+    {{- end }}
+    {{- with .skipDefaultSystemInit -}}
+    skipDefaultSystemInit: {{ . }}
+    {{- end }}
     {{- $componentValues := . }}
     {{- $_ := set $componentValues "component" "cn" }}
     {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
