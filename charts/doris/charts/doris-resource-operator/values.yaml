@@ -10,7 +10,8 @@ controllerManager:
   manager:
     image:
       repository: ghcr.io/thealtoclef/doris-resource-operator
-      pullPolicy: IfNotPresent
+      tag: latest
+      pullPolicy: Always
     resources:
       requests:
         cpu: 50m
