@@ -35,7 +35,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: be-configmap-{{ .uniqueId }}
+  name: be-configmap-{{ .uniqueId | replace "_" "-" }}
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "doris-cluster.labels" $ | nindent 4 }}

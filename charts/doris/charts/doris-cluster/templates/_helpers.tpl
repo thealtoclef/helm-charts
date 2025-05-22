@@ -123,7 +123,7 @@ configMaps:
   {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- with $componentValues.conf }}
-  - name: {{ if eq $componentValues.component "ms" }}ms-configmap{{ else if eq $componentValues.component "fe" }}fe-configmap{{ else if eq $componentValues.component "cn" }}be-configmap-{{ $componentValues.uniqueId }}{{ end }}
+  - name: {{ if eq $componentValues.component "ms" }}ms-configmap{{ else if eq $componentValues.component "fe" }}fe-configmap{{ else if eq $componentValues.component "cn" }}be-configmap-{{ $componentValues.uniqueId | replace "_" "-" }}{{ end }}
     mountPath: /etc/doris
   {{- end }}
 {{- end }}
