@@ -107,8 +107,7 @@ global:
 sessionJobs: []
 # sessionJobs:
 #   - name: job-name
-#     labels:
-#       vault-injection: enabled
+#     resetNonce: 0
 #     job:
 #       sourceType: mysql
 #       sourceDatabase: inventory
