@@ -24,8 +24,7 @@ spec:
   jobManager:
     replicas: {{ .Values.jobManager.replicas }}
     resource:
-      cpu: {{ .Values.jobManager.cpu }}
-      memory: {{ printf "%sMi" .Values.jobManager.memory }}
+      {{- .Values.jobManager.resource | toYaml | nindent 6 }}
     {{- with .Values.jobManager.podTemplate }}
     podTemplate:
       {{- toYaml . | nindent 6 }}
@@ -33,8 +32,7 @@ spec:
   taskManager:
     replicas: {{ .Values.taskManager.replicas }}
     resource:
-      cpu: {{ .Values.taskManager.cpu }}
-      memory: {{ printf "%sMi" .Values.taskManager.memory }}
+      {{- .Values.taskManager.resource | toYaml | nindent 6 }}
     {{- with .Values.taskManager.podTemplate }}
     podTemplate:
       {{- toYaml . | nindent 6 }}
@@ -113,13 +111,6 @@ spec:
           {{- end }}
       {{- end }}
   flinkConfiguration:
-    ### Resources limit factor
-    kubernetes.jobmanager.cpu.limit-factor: {{ .Values.jobManager.cpuLimitFactor | quote }}
-    kubernetes.jobmanager.memory.limit-factor: {{ .Values.jobManager.memoryLimitFactor | quote }}
-    jobmanager.memory.process.size: {{ printf "%s mb" (mul .Values.jobManager.memory .Values.jobManager.memoryLimitFactor) }}
-    kubernetes.taskmanager.cpu.limit-factor: {{ .Values.taskManager.cpuLimitFactor | quote }}
-    kubernetes.taskmanager.memory.limit-factor: {{ .Values.taskManager.memoryLimitFactor | quote }}
-    taskmanager.memory.process.size: {{ printf "%s mb" (mul .Values.taskManager.memory .Values.taskManager.memoryLimitFactor) }}
     ### RocksDB configuration
     {{- if .Values.rocksDB.enabled }}
     state.backend: rocksdb

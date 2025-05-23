@@ -57,17 +57,15 @@ flinkVersion: v1_20
 serviceAccount: flink
 jobManager:
   replicas: 1
-  cpu: 0.1
-  cpuLimitFactor: 10
-  memory: 1024
-  memoryLimitFactor: 2
+  resource:
+    cpu: 0.1
+    memory: 1024Mi
   podTemplate: {}
 taskManager:
   replicas: 1
-  cpu: 0.1
-  cpuLimitFactor: 10
-  memory: 1024
-  memoryLimitFactor: 2
+  resource:
+    cpu: 0.1
+    memory: 1024Mi
   podTemplate: {}
 ingress: {}
 affinity: {}
@@ -106,6 +104,16 @@ global:
   singleSink: ~
   extraArgs: []
   flinkConfiguration: {}
+    # # Job Manager resources configuration
+    # kubernetes.jobmanager.cpu.limit-factor: "10"
+    # kubernetes.jobmanager.memory.limit-factor: "2"
+    # jobmanager.memory.process.size: 2048 mb
+    # jobmanager.memory.flink.size: 1536 mb # Total Process Memory - 512MB
+    # # Task Manager resources configuration
+    # kubernetes.taskmanager.cpu.limit-factor: "10"
+    # kubernetes.taskmanager.memory.limit-factor: "4"
+    # taskmanager.memory.process.size: 4096 mb
+    # taskmanager.memory.flink.size: 3584 mb # Total Process Memory - 512MB
 sessionJobs: []
 # sessionJobs:
 #   - name: job-name
