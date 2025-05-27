@@ -13,13 +13,6 @@ data:
     grpc_allow_insecure: false
     prefixes:
       {{- toYaml .Values.controlPlane.headscale.config.prefixes | nindent 6 }}
-    database:
-      type: sqlite
-      debug: false
-      sqlite:
-        path: /etc/headscale/db.sqlite
-    noise:
-      private_key_path: /etc/headscale/noise_private.key
     derp:
       {{- toYaml .Values.controlPlane.headscale.config.derp | nindent 6 }}
     dns:
