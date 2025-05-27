@@ -11,7 +11,7 @@ controlPlane:
   headscale:
     image:
       repository: ghcr.io/juanfont/headscale
-      tag: "0.25.1"
+      tag: latest
     config:
       prefixes:
         v4: 100.64.0.0/10
@@ -54,7 +54,7 @@ controlPlane:
     enabled: true
     image:
       repository: ghcr.io/tale/headplane
-      tag: "0.5.10"
+      tag: latest
       config:
         oidc:
           enabled: false
@@ -67,7 +67,7 @@ relay:
   enabled: true
   image:
     repository: ghcr.io/tailscale/tailscale
-    tag: "v1.82.0"
+    tag: latest
   config:
     hostname: relay
     routes: ~
