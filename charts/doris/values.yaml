@@ -103,8 +103,7 @@ doris-operator:
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
-        drop:
-          - "ALL"
+        drop: ["ALL"]
 
 doris-resource-manager:
   # Default values for manager.
@@ -188,7 +187,8 @@ doris-resource-operator:
     manager:
       image:
         repository: ghcr.io/thealtoclef/doris-resource-operator
-        pullPolicy: IfNotPresent
+        tag: latest
+        pullPolicy: Always
       resources:
         requests:
           cpu: 50m
