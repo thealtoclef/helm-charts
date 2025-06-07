@@ -103,7 +103,8 @@ doris-operator:
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
-        drop: ["ALL"]
+        drop:
+          - "ALL"
 
 doris-resource-manager:
   # Default values for manager.
@@ -153,23 +154,21 @@ doris-resource-manager:
     #   passwordSecretRef:
     #     name: user-credentials
     #     key: admin
+    #   manageProperties: false
     #   manageGrants: false
     # - username: test_user
     #   passwordSecretRef:
     #     name: user-credentials
     #     key: test_user
+    #   properties:
+    #     - name: default_workload_group
+    #       value: default
     #   grants:
     #     - privileges:
     #         - SELECT
     #         - ALTER
     #         - INSERT
-    #       target: TABLE db1.tbl1
-    #     - privileges:
-    #         - SELECT
-    #       target: ALL TABLES IN DATABASE db1
-    #     - privileges:
-    #         - SELECT
-    #       target: ALL TABLES IN ALL DATABASES
+    #       target: internal.db1.tbl1
     #     - privileges:
     #         - USAGE
     #       target: RESOURCE 'test_resource'
