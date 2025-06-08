@@ -45,8 +45,6 @@ users: []
   #   passwordSecretRef:
   #     name: user-credentials
   #     key: admin
-  #   manageProperties: false
-  #   manageGrants: false
   # - username: test_user
   #   passwordSecretRef:
   #     name: user-credentials
