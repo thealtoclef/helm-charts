@@ -10,8 +10,9 @@ operator:
 
 # Auth Proxy
 authProxy:
-  publicDB: false
-  autoIAMAuthn: false
+  global:
+    publicDB: false
+    autoIAMAuthn: false
   serviceAccount: name@project.iam.gserviceaccount.com
   resources:
     limits:
@@ -24,19 +25,35 @@ authProxy:
 # Sources
 sources: []
 # sources:
+#   # Example 1: Cloud SQL with global defaults (private IP, no auto IAM)
 #   - name: cake-mysql-stage
 #     auth_proxy: cloud_sql
 #     driver: mysql
 #     instance_uri: bef-cake-sandbox:asia-southeast1:cake-mysql8-stage
+#     # Uses global defaults: publicDB: false, autoIAMAuthn: false
+#
+#   # Example 2: AlloyDB with source-specific overrides (public IP, auto IAM)
 #   - name: cake-alloydb-stage
 #     auth_proxy: alloydb
 #     driver: postgres
 #     instance_uri: projects/bef-cake-sandbox/locations/asia-southeast1/clusters/cake-alloydb-stage-cluster/instances/cake-alloydb-stage
+#     publicDB: true      # Override global default
+#     autoIAMAuthn: true  # Override global default
+#
+#   # Example 3: Cloud SQL with mixed overrides (private IP, auto IAM)
+#   - name: cake-mysql-prod
+#     auth_proxy: cloud_sql
+#     driver: mysql
+#     instance_uri: bef-cake-prod:asia-southeast1:cake-mysql8-prod
+#     autoIAMAuthn: true  # Override global default, publicDB uses global default (false)
+#
+#   # Example 4: Direct connection (no auth proxy)
 #   - name: mysql-example
 #     host: test.tld
 #     port: 3306
 #     username: debezium
 #     password: dbz
+#     # publicDB and autoIAMAuthn not applicable for non-auth_proxy sources
 
 # Sinks
 sinks: []

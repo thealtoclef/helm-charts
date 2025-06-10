@@ -78,43 +78,113 @@ Create the path of the operator image to use
 {{- end }}
 {{- end }}
 
-{{/* Determine if cloud_sql is present */}}
-{{- define "auth_proxy.has_cloud_sql" -}}
-{{- $has_cloud_sql := false -}}
-{{- range .Values.sources -}}
+{{/* Get unique cloud_sql configurations */}}
+{{- define "auth_proxy.cloud_sql_configs" -}}
+{{- $configs := dict -}}
+{{- range $index, $element := .Values.sources -}}
   {{- if and .auth_proxy (eq .auth_proxy "cloud_sql") -}}
-    {{- $has_cloud_sql = true -}}
+    {{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" . "root" $) -}}
+    {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" . "root" $) -}}
+    {{- $configList := list $publicDB $autoIAMAuthn -}}
+    {{- $configString := join "," $configList -}}
+    {{- $configKey := sha256sum $configString | trunc 7 -}}
+    {{- $existingConfig := index $configs $configKey -}}
+    {{- $sources := list -}}
+    {{- if $existingConfig -}}
+      {{- $sources = $existingConfig.sources -}}
+    {{- end -}}
+    {{- $sourceInfo := dict "index" $index "instance_uri" .instance_uri -}}
+    {{- $sources = append $sources $sourceInfo -}}
+    {{- $configs = set $configs $configKey (dict "publicDB" $publicDB "autoIAMAuthn" $autoIAMAuthn "sources" $sources) -}}
   {{- end -}}
 {{- end -}}
-{{- $has_cloud_sql -}}
+{{- $configs | toYaml -}}
+{{- end -}}
+
+{{/* Get unique alloydb configurations */}}
+{{- define "auth_proxy.alloydb_configs" -}}
+{{- $configs := dict -}}
+{{- range $index, $element := .Values.sources -}}
+  {{- if and .auth_proxy (eq .auth_proxy "alloydb") -}}
+    {{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" . "root" $) -}}
+    {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" . "root" $) -}}
+    {{- $configList := list $publicDB $autoIAMAuthn -}}
+    {{- $configString := join "," $configList -}}
+    {{- $configKey := sha256sum $configString | trunc 7 -}}
+    {{- $existingConfig := index $configs $configKey -}}
+    {{- $sources := list -}}
+    {{- if $existingConfig -}}
+      {{- $sources = $existingConfig.sources -}}
+    {{- end -}}
+    {{- $sourceInfo := dict "index" $index "instance_uri" .instance_uri -}}
+    {{- $sources = append $sources $sourceInfo -}}
+    {{- $configs = set $configs $configKey (dict "publicDB" $publicDB "autoIAMAuthn" $autoIAMAuthn "sources" $sources) -}}
+  {{- end -}}
+{{- end -}}
+{{- $configs | toYaml -}}
+{{- end -}}
+
+{{/* Determine if cloud_sql is present */}}
+{{- define "auth_proxy.has_cloud_sql" -}}
+{{- $configs := include "auth_proxy.cloud_sql_configs" . | fromYaml -}}
+{{- if $configs -}}
+true
+{{- else -}}
+false
+{{- end -}}
 {{- end -}}
 
 {{/* Determine if alloydb is present */}}
 {{- define "auth_proxy.has_alloydb" -}}
-{{- $has_alloydb := false -}}
-{{- range .Values.sources -}}
-  {{- if and .auth_proxy (eq .auth_proxy "alloydb") -}}
-    {{- $has_alloydb = true -}}
-  {{- end -}}
+{{- $configs := include "auth_proxy.alloydb_configs" . | fromYaml -}}
+{{- if $configs -}}
+true
+{{- else -}}
+false
 {{- end -}}
-{{- $has_alloydb -}}
+{{- end -}}
+
+{{/* Get publicDB value for a source with global fallback */}}
+{{- define "auth_proxy.getPublicDB" -}}
+{{- $source := .source -}}
+{{- $root := .root -}}
+{{- if hasKey $source "publicDB" -}}
+{{- $source.publicDB -}}
+{{- else -}}
+{{- $root.Values.authProxy.global.publicDB -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Get autoIAMAuthn value for a source with global fallback */}}
+{{- define "auth_proxy.getAutoIAMAuthn" -}}
+{{- $source := .source -}}
+{{- $root := .root -}}
+{{- if hasKey $source "autoIAMAuthn" -}}
+{{- $source.autoIAMAuthn -}}
+{{- else -}}
+{{- $root.Values.authProxy.global.autoIAMAuthn -}}
+{{- end -}}
 {{- end -}}
 
 {{/* cloud-sql-auth-proxy configuration */}}
 {{- define "auth_proxy.cloud_sql" -}}
-- name: cloud-sql-auth-proxy
+{{- $configs := include "auth_proxy.cloud_sql_configs" . | fromYaml -}}
+{{- range $configKey, $config := $configs }}
+{{- $suffix := "" -}}
+{{- if gt (len $configs) 1 -}}
+  {{- $suffix = printf "-%s" $configKey -}}
+{{- end }}
+- name: cloud-sql-auth-proxy{{ $suffix }}
   image: asia.gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
   args:
-  {{- if eq .Values.authProxy.publicDB false }}
+  {{- if eq $config.publicDB "false" }}
     - --private-ip
   {{- end }}
-  {{- if eq .Values.authProxy.autoIAMAuthn true }}
+  {{- if eq $config.autoIAMAuthn "true" }}
     - --auto-iam-authn
   {{- end }}
-  {{- range $index, $element := .Values.sources }}
-    {{- if and .auth_proxy (eq .auth_proxy "cloud_sql") }}
-    - {{ .instance_uri -}}?port={{- 10000 | add $index | add1 }}
-    {{- end }}
+  {{- range $config.sources }}
+    - {{ .instance_uri -}}?port={{- 10000 | add .index | add1 }}
   {{- end }}
   restartPolicy: Always
   securityContext:
@@ -127,27 +197,32 @@ Create the path of the operator image to use
         - ALL
     seccompProfile:
       type: RuntimeDefault
-  {{ if .Values.authProxy.resources }}
+  {{ if $.Values.authProxy.resources }}
   resources:
-    {{- toYaml .Values.authProxy.resources | nindent 4 }}
+    {{- toYaml $.Values.authProxy.resources | nindent 4 }}
   {{- end }}
+{{- end }}
 {{- end -}}
 
 {{/* alloydb-auth-proxy configuration */}}
 {{- define "auth_proxy.alloydb" -}}
-- name: alloydb-auth-proxy
+{{- $configs := include "auth_proxy.alloydb_configs" . | fromYaml -}}
+{{- range $configKey, $config := $configs }}
+{{- $suffix := "" -}}
+{{- if gt (len $configs) 1 -}}
+  {{- $suffix = printf "-%s" $configKey -}}
+{{- end }}
+- name: alloydb-auth-proxy{{ $suffix }}
   image: asia.gcr.io/alloydb-connectors/alloydb-auth-proxy:1
   args:
-  {{- if eq .Values.authProxy.publicDB true }}
+  {{- if eq $config.publicDB "true" }}
     - --public-ip
   {{- end }}
-  {{- if eq .Values.authProxy.autoIAMAuthn true }}
+  {{- if eq $config.autoIAMAuthn "true" }}
     - --auto-iam-authn
   {{- end }}
-  {{- range $index, $element := .Values.sources }}
-    {{- if and .auth_proxy (eq .auth_proxy "alloydb") }}
-    - {{ .instance_uri -}}?port={{- 10000 | add $index | add1 }}
-    {{- end }}
+  {{- range $config.sources }}
+    - {{ .instance_uri -}}?port={{- 10000 | add .index | add1 }}
   {{- end }}
   restartPolicy: Always
   securityContext:
@@ -160,10 +235,11 @@ Create the path of the operator image to use
         - ALL
     seccompProfile:
       type: RuntimeDefault
-  {{ if .Values.authProxy.resources }}
+  {{ if $.Values.authProxy.resources }}
   resources:
-    {{- toYaml .Values.authProxy.resources | nindent 4 }}
+    {{- toYaml $.Values.authProxy.resources | nindent 4 }}
   {{- end }}
+{{- end }}
 {{- end -}}
 
 {{- define "getDatasourceDetails" -}}
@@ -178,7 +254,8 @@ Create the path of the operator image to use
     {{- if $ds.auth_proxy -}}
       {{- $host = "localhost" -}}
       {{- $port = 10000 | add $index | add1 -}}
-      {{- if $.root.Values.authProxy.autoIAMAuthn -}}
+      {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" $ds "root" $.root) -}}
+      {{- if eq $autoIAMAuthn "true" -}}
         {{- $password = "auto_iam_authn" -}}
         {{- if eq $ds.driver "mysql" -}}
           {{- $username = regexFind "^[^@]*" $serviceAccount -}}
