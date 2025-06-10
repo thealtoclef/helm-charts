@@ -59,9 +59,9 @@ sources: []
 sinks: []
 # sinks:
 #   - name: doris-cluster
-#     fe_host: doris-cluster-fe-service.doris.svc.cluster.local
-#     fe_http_port: 8030
-#     fe_query_port: 9030
+#     fenodes: doris-cluster-fe.doris:8030
+#     benodes: doris-cluster-cg.doris:8040
+#     jdbc-url: jdbc:mysql://doris-cluster-fe.doris:9030
 #     username: flink-cdc
 #     password: flink-cdc
 

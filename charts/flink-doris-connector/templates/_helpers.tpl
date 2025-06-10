@@ -277,12 +277,11 @@ false
 {{- $details := dict -}}
 {{- range .root.Values.sinks -}}
   {{- if eq .name $.sinkRef -}}
-    {{- $fe_host := printf "%v" .fe_host -}}
-    {{- $fe_http_port := printf "%v" .fe_http_port -}}
-    {{- $fe_query_port := printf "%v" .fe_query_port -}}
-    {{- $username := .username -}}
-    {{- $password := .password -}}
-    {{- $details = dict "fenodes" (printf "%s:%s" $fe_host $fe_http_port) "jdbc-url" (printf "jdbc:mysql://%s:%s" $fe_host $fe_query_port) "username" $username "password" $password -}}
+    {{- range $key, $value := . -}}
+      {{- if ne $key "name" -}}
+        {{- $details = set $details $key $value -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- if and (eq (len $details) 0) .sinkRef -}}
