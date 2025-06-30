@@ -11489,6 +11489,10 @@ spec:
                     description: Phase represent the stage of reconciling.
                     type: string
                 type: object
+              observedGeneration:
+                description: is the most recent generation observed for DorisDisaggregatedCluster
+                format: int64
+                type: integer
             type: object
         type: object
     served: true

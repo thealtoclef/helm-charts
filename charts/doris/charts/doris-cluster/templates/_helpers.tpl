@@ -105,8 +105,11 @@ annotations:
 affinity:
   {{- toYaml . | nindent 2 }}
 {{- end }}
+{{- with $componentValues.logNotStore }}
+logNotStore: {{ . }}
+{{- end }}
 {{- with $componentValues.persistentVolume }}
-persistentVolume:
+persistentVolumes:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 {{- with $componentValues.tolerations }}
@@ -154,6 +157,10 @@ envFrom:
 {{- end }}
 {{- with $componentValues.systemInitialization }}
 systemInitialization:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $componentValues.secrets }}
+secrets:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 {{- if or $componentValues.initContainers (and $root.Values.authProxy.enabled (or (eq $componentValues.component "fe") (eq $componentValues.component "cn") ) ) }}
