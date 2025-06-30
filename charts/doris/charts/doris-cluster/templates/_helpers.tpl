@@ -108,7 +108,7 @@ affinity:
 {{- with $componentValues.logNotStore }}
 logNotStore: {{ . }}
 {{- end }}
-{{- with $componentValues.persistentVolume }}
+{{- with $componentValues.persistentVolumes }}
 persistentVolumes:
   {{- toYaml . | nindent 2 }}
 {{- end }}
