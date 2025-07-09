@@ -105,6 +105,8 @@ doris-operator:
       capabilities:
         drop:
           - "ALL"
+    podAnnotations: {}
+    podLabels: {}
 
 doris-resource-manager:
   # Default values for manager.
@@ -199,6 +201,8 @@ doris-resource-operator:
         readOnlyRootFilesystem: true
         capabilities:
           drop: ["ALL"]
+    podAnnotations: {}
+    podLabels: {}
     podSecurityContext:
       runAsNonRoot: true
       fsGroup: 65534

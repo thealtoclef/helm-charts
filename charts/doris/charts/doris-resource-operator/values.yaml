@@ -25,6 +25,8 @@ controllerManager:
       readOnlyRootFilesystem: true
       capabilities:
         drop: ["ALL"]
+  podAnnotations: {}
+  podLabels: {}
   podSecurityContext:
     runAsNonRoot: true
     fsGroup: 65534

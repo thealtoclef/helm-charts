@@ -20,9 +20,16 @@ spec:
     {{- include "doris-resource-operator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.controllerManager.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         control-plane: controller-manager
-      {{- include "doris-resource-operator.selectorLabels" . | nindent 8 }}
+        {{- include "doris-resource-operator.selectorLabels" . | nindent 8 }}
+        {{- with .Values.controllerManager.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       containers:
       - args:
