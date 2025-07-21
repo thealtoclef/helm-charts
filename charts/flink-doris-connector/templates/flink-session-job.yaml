@@ -1,6 +1,6 @@
 {{- $namespace := $.Release.Namespace }}
 {{- range .Values.sessionJobs }}
-{{- $metadataName := printf "%s-%s" .name (default "" .resetNonce) | trimSuffix "-" }}
+{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
 {{- $sourceType := .job.sourceType }}
 {{- $sourceDatabase := .job.sourceDatabase }}
 {{- $slotName := (printf "%s-%s" $namespace .name) | replace "-" "_" }}
