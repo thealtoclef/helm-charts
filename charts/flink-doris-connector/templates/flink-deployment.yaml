@@ -111,24 +111,11 @@ spec:
           {{- end }}
       {{- end }}
   flinkConfiguration:
-    ### RocksDB configuration
-    {{- if .Values.rocksDB.enabled }}
-    state.backend: rocksdb
-    state.backend.incremental: true
-    {{- else }}
-    taskmanager.memory.managed.size: 0 mb
-    {{- end }}
     {{- if .Values.highAvailability.enabled }}
     ### Flink high-availability configuration
     high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
     high-availability.type: kubernetes
     high-availability.storageDir: {{ .Values.objectStore }}/ha
-    {{- end }}
-    {{- if .Values.monitoring.enabled }}
-    ### Flink metrics configuration
-    metrics.reporters: prometheus
-    metrics.reporter.prometheus.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
-    metrics.reporter.prometheus.port: {{ .Values.monitoring.port | quote }}
     {{- end }}
     {{- if .Values.global.flinkConfiguration }}
     ### User provided configuration

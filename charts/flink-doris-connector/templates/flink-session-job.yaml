@@ -81,10 +81,6 @@ spec:
       - --table-conf
       - "{{ $key }}={{ $value }}"
       {{- end }}
-      {{- if or .job.schemaChangeMode $.Values.global.schemaChangeMode }}
-      - --schema-change-mode
-      - {{ default $.Values.global.schemaChangeMode .job.schemaChangeMode | quote }}
-      {{- end }}
       {{- if or .job.singleSink $.Values.global.singleSink }}
       - --single-sink
       - {{ default $.Values.global.singleSink .job.singleSink | quote }}

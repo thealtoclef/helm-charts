@@ -100,13 +100,8 @@ persistence:
   log:
     enabled: false
 objectStore: file:///opt/flink/data
-rocksDB:
-  enabled: false
 highAvailability:
   enabled: false
-monitoring:
-  enabled: false
-  port: 9999
 global:
   parallelism: 1
   state: running
@@ -117,7 +112,6 @@ global:
   sinkRef: ~
   sinkConf: {}
   tableConf: {}
-  schemaChangeMode: ~
   singleSink: ~
   extraArgs: []
   flinkConfiguration: {}
@@ -132,7 +126,6 @@ sessionJobs: []
 #       excludingTables: geom
 #       sourceRef: mysql-example
 #       sinkRef: doris-cluster
-#       schemaChangeMode: sql_parser
 #       singleSink: true
 #       extraArgs: []
 #     flinkConfiguration: {}
