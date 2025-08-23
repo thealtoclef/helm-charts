@@ -86,12 +86,6 @@ readinessProbe:
     path: /q/health/ready
     port: http
 
-# Additional volumes on the output Deployment definition.
-volumes: []
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-
 nodeSelector: {}
 
 tolerations: []
@@ -102,5 +96,11 @@ affinity: {}
 rbac:
   create: true
 
-# Environment variables for Heimdall configuration
-env: []
+# URL of the Heimdall dashboard
+url: "http://localhost:8080"
+
+# Comma separated list of valid origins allowed for CORS. Change to http://localhost:8001 when using kubectl proxy.
+cors: "*"
+
+# Kubernetes namespace(s) to watch. Supports single namespace or comma-separated list (e.g. "default,prod,staging").
+watchNamespace: default
