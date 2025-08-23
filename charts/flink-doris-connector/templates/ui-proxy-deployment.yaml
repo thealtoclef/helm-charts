@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "helm-chart.fullname" . }}-ui-proxy
+  name: ui-proxy
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
@@ -76,7 +76,7 @@ spec:
       volumes:
         - name: nginx-config
           configMap:
-            name: {{ include "helm-chart.fullname" . }}-ui-proxy-config
+            name: ui-proxy-config
         - name: tmp
           emptyDir: {}
         - name: var-cache
