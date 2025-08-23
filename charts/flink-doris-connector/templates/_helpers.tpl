@@ -102,7 +102,7 @@ Create the path of the operator image to use
 {{- end -}}
 
 
-{{- define "getDatasourceDetails" -}}
+{{- define "getSourceDetails" -}}
 {{- $serviceAccount := .root.Values.authProxy.serviceAccount -}}
 {{- $details := dict -}}
 {{- range $index, $ds := .root.Values.sources -}}
@@ -128,7 +128,7 @@ Create the path of the operator image to use
   {{- end -}}
 {{- end -}}
 {{- if and (eq (len $details) 0) .sourceRef -}}
-  {{- fail (printf "Datasource not found: %s" .sourceRef) -}}
+  {{- fail (printf "Source not found: %s" .sourceRef) -}}
 {{- end -}}
 {{- $details | toYaml -}}
 {{- end -}}

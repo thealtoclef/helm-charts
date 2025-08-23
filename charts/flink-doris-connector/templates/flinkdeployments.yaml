@@ -156,7 +156,7 @@ spec:
       - --excluding-tables
       - {{ . | quote }}
       {{- end }}
-      {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.sourceRef .sourceRef)) | fromYaml) (default dict .sourceConf) $.Values.global.sourceConf $sourceConfDefault }}
+      {{- range $key, $value := merge (include "getSourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.sourceRef .sourceRef)) | fromYaml) (default dict .sourceConf) $.Values.global.sourceConf $sourceConfDefault }}
       - --{{ $sourceType }}-conf
       - "{{ $key }}={{ $value }}"
       {{- end }}
