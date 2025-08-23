@@ -12,8 +12,8 @@ operator:
 heimdall:
   enabled: true
 
-# Reverse Proxy for Flink UIs
-proxy:
+# UI Proxy for Flink UIs
+uiProxy:
   enabled: true
   replicas: 1
   image:

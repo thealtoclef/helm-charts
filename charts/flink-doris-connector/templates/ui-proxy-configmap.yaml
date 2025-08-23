@@ -1,8 +1,8 @@
-{{- if .Values.proxy.enabled }}
+{{- if .Values.uiProxy.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "helm-chart.fullname" . }}-proxy-config
+  name: {{ include "helm-chart.fullname" . }}-ui-proxy-config
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
@@ -56,32 +56,8 @@ data:
             
             # Root redirect to show available deployments
             location = / {
-                return 200 '<!DOCTYPE html>
-<html>
-<head>
-    <title>Flink Deployments</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        h1 { color: #333; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .deployment { background: #f5f5f5; padding: 10px; border-left: 4px solid #0066cc; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <h1>Flink Deployments</h1>
-    <p>Available Flink UI interfaces:</p>
-    {{- range .Values.pipelines }}
-    <div class="deployment">
-        <strong>{{ .name }}</strong><br>
-        <a href="/{{ .name }}/" target="_blank">Open Flink UI</a>
-    </div>
-    {{- end }}
-</body>
-</html>';
                 add_header Content-Type text/html;
+                return 200 '<!DOCTYPE html><html><head><title>Flink Deployments</title><style>body{font-family:Arial,sans-serif;margin:40px}h1{color:#333}.deployment{background:#f5f5f5;padding:10px;border-left:4px solid #0066cc;margin:10px 0}a{color:#0066cc;text-decoration:none}a:hover{text-decoration:underline}</style></head><body><h1>Flink Deployments</h1><p>Available Flink UI interfaces:</p>{{- range .Values.pipelines }}<div class="deployment"><strong>{{ .name }}</strong><br><a href="/{{ .name }}/" target="_blank">Open Flink UI</a></div>{{- end }}</body></html>';
             }
             
             {{- range .Values.pipelines }}

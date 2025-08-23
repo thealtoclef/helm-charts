@@ -1,0 +1,45 @@
+{{- if .Values.uiProxy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm-chart.fullname" . }}-ui-proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-chart.labels" . | nindent 4 }}
+    component: ui-proxy
+  {{- with .Values.uiProxy.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.uiProxy.service.type }}
+  {{- if and (eq .Values.uiProxy.service.type "LoadBalancer") .Values.uiProxy.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.uiProxy.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.uiProxy.service.type "LoadBalancer") .Values.uiProxy.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.uiProxy.service.loadBalancerSourceRanges }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- if and (eq .Values.uiProxy.service.type "ClusterIP") .Values.uiProxy.service.clusterIP }}
+  clusterIP: {{ .Values.uiProxy.service.clusterIP }}
+  {{- end }}
+  {{- if .Values.uiProxy.service.externalIPs }}
+  externalIPs:
+    {{- range .Values.uiProxy.service.externalIPs }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.uiProxy.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if and (or (eq .Values.uiProxy.service.type "NodePort") (eq .Values.uiProxy.service.type "LoadBalancer")) .Values.uiProxy.service.nodePort }}
+      nodePort: {{ .Values.uiProxy.service.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "helm-chart.selectorLabels" . | nindent 4 }}
+    component: ui-proxy
+{{- end }}
