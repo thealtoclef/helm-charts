@@ -78,71 +78,6 @@ Create the path of the operator image to use
 {{- end }}
 {{- end }}
 
-{{/* Get unique cloud_sql configurations */}}
-{{- define "auth_proxy.cloud_sql_configs" -}}
-{{- $configs := dict -}}
-{{- range $index, $element := .Values.sources -}}
-  {{- if and .auth_proxy (eq .auth_proxy "cloud_sql") -}}
-    {{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" . "root" $) -}}
-    {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" . "root" $) -}}
-    {{- $configList := list $publicDB $autoIAMAuthn -}}
-    {{- $configString := join "," $configList -}}
-    {{- $configKey := sha256sum $configString | trunc 7 -}}
-    {{- $existingConfig := index $configs $configKey -}}
-    {{- $sources := list -}}
-    {{- if $existingConfig -}}
-      {{- $sources = $existingConfig.sources -}}
-    {{- end -}}
-    {{- $sourceInfo := dict "index" $index "instance_uri" .instance_uri -}}
-    {{- $sources = append $sources $sourceInfo -}}
-    {{- $configs = set $configs $configKey (dict "publicDB" $publicDB "autoIAMAuthn" $autoIAMAuthn "sources" $sources) -}}
-  {{- end -}}
-{{- end -}}
-{{- $configs | toYaml -}}
-{{- end -}}
-
-{{/* Get unique alloydb configurations */}}
-{{- define "auth_proxy.alloydb_configs" -}}
-{{- $configs := dict -}}
-{{- range $index, $element := .Values.sources -}}
-  {{- if and .auth_proxy (eq .auth_proxy "alloydb") -}}
-    {{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" . "root" $) -}}
-    {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" . "root" $) -}}
-    {{- $configList := list $publicDB $autoIAMAuthn -}}
-    {{- $configString := join "," $configList -}}
-    {{- $configKey := sha256sum $configString | trunc 7 -}}
-    {{- $existingConfig := index $configs $configKey -}}
-    {{- $sources := list -}}
-    {{- if $existingConfig -}}
-      {{- $sources = $existingConfig.sources -}}
-    {{- end -}}
-    {{- $sourceInfo := dict "index" $index "instance_uri" .instance_uri -}}
-    {{- $sources = append $sources $sourceInfo -}}
-    {{- $configs = set $configs $configKey (dict "publicDB" $publicDB "autoIAMAuthn" $autoIAMAuthn "sources" $sources) -}}
-  {{- end -}}
-{{- end -}}
-{{- $configs | toYaml -}}
-{{- end -}}
-
-{{/* Determine if cloud_sql is present */}}
-{{- define "auth_proxy.has_cloud_sql" -}}
-{{- $configs := include "auth_proxy.cloud_sql_configs" . | fromYaml -}}
-{{- if $configs -}}
-true
-{{- else -}}
-false
-{{- end -}}
-{{- end -}}
-
-{{/* Determine if alloydb is present */}}
-{{- define "auth_proxy.has_alloydb" -}}
-{{- $configs := include "auth_proxy.alloydb_configs" . | fromYaml -}}
-{{- if $configs -}}
-true
-{{- else -}}
-false
-{{- end -}}
-{{- end -}}
 
 {{/* Get publicDB value for a source with global fallback */}}
 {{- define "auth_proxy.getPublicDB" -}}
@@ -166,81 +101,6 @@ false
 {{- end -}}
 {{- end -}}
 
-{{/* cloud-sql-auth-proxy configuration */}}
-{{- define "auth_proxy.cloud_sql" -}}
-{{- $configs := include "auth_proxy.cloud_sql_configs" . | fromYaml -}}
-{{- range $configKey, $config := $configs }}
-{{- $suffix := "" -}}
-{{- if gt (len $configs) 1 -}}
-  {{- $suffix = printf "-%s" $configKey -}}
-{{- end }}
-- name: cloud-sql-auth-proxy{{ $suffix }}
-  image: asia.gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
-  args:
-  {{- if eq $config.publicDB "false" }}
-    - --private-ip
-  {{- end }}
-  {{- if eq $config.autoIAMAuthn "true" }}
-    - --auto-iam-authn
-  {{- end }}
-  {{- range $config.sources }}
-    - {{ .instance_uri -}}?port={{- 10000 | add .index | add1 }}
-  {{- end }}
-  restartPolicy: Always
-  securityContext:
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
-    runAsUser: 65532
-    runAsGroup: 65532
-    capabilities:
-      drop:
-        - ALL
-    seccompProfile:
-      type: RuntimeDefault
-  {{ if $.Values.authProxy.resources }}
-  resources:
-    {{- toYaml $.Values.authProxy.resources | nindent 4 }}
-  {{- end }}
-{{- end }}
-{{- end -}}
-
-{{/* alloydb-auth-proxy configuration */}}
-{{- define "auth_proxy.alloydb" -}}
-{{- $configs := include "auth_proxy.alloydb_configs" . | fromYaml -}}
-{{- range $configKey, $config := $configs }}
-{{- $suffix := "" -}}
-{{- if gt (len $configs) 1 -}}
-  {{- $suffix = printf "-%s" $configKey -}}
-{{- end }}
-- name: alloydb-auth-proxy{{ $suffix }}
-  image: asia.gcr.io/alloydb-connectors/alloydb-auth-proxy:1
-  args:
-  {{- if eq $config.publicDB "true" }}
-    - --public-ip
-  {{- end }}
-  {{- if eq $config.autoIAMAuthn "true" }}
-    - --auto-iam-authn
-  {{- end }}
-  {{- range $config.sources }}
-    - {{ .instance_uri -}}?port={{- 10000 | add .index | add1 }}
-  {{- end }}
-  restartPolicy: Always
-  securityContext:
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
-    runAsUser: 65532
-    runAsGroup: 65532
-    capabilities:
-      drop:
-        - ALL
-    seccompProfile:
-      type: RuntimeDefault
-  {{ if $.Values.authProxy.resources }}
-  resources:
-    {{- toYaml $.Values.authProxy.resources | nindent 4 }}
-  {{- end }}
-{{- end }}
-{{- end -}}
 
 {{- define "getDatasourceDetails" -}}
 {{- $serviceAccount := .root.Values.authProxy.serviceAccount -}}
@@ -253,7 +113,7 @@ false
     {{- $password := $ds.password -}}
     {{- if $ds.auth_proxy -}}
       {{- $host = "localhost" -}}
-      {{- $port = 10000 | add $index | add1 -}}
+      {{- $port = 10000 -}}
       {{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" $ds "root" $.root) -}}
       {{- if eq $autoIAMAuthn "true" -}}
         {{- $password = "auto_iam_authn" -}}
@@ -288,4 +148,88 @@ false
   {{- fail (printf "Sink not found: %s" .sinkRef) -}}
 {{- end -}}
 {{- $details | toYaml -}}
+{{- end -}}
+
+{{/* Get auth proxy sidecar for a specific source */}}
+{{- define "auth_proxy.single_source" -}}
+{{- $sourceRef := .sourceRef -}}
+{{- $root := .root -}}
+{{- $sourceData := dict -}}
+{{- range $source := $root.Values.sources -}}
+  {{- if eq $source.name $sourceRef -}}
+    {{- $sourceData = $source -}}
+  {{- end -}}
+{{- end -}}
+{{- if and $sourceData.auth_proxy (eq $sourceData.auth_proxy "cloud_sql") -}}
+{{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" $sourceData "root" $root) -}}
+{{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" $sourceData "root" $root) -}}
+- name: cloud-sql-auth-proxy
+  image: asia.gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+  args:
+    {{- if eq $publicDB "false" }}
+    - --private-ip
+    {{- end }}
+    {{- if eq $autoIAMAuthn "true" }}
+    - --auto-iam-authn
+    {{- end }}
+    - {{ $sourceData.instance_uri }}?port=10000
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    runAsUser: 65532
+    runAsGroup: 65532
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  {{- with $root.Values.authProxy.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end -}}
+{{- else if and $sourceData.auth_proxy (eq $sourceData.auth_proxy "alloydb") -}}
+{{- $publicDB := include "auth_proxy.getPublicDB" (dict "source" $sourceData "root" $root) -}}
+{{- $autoIAMAuthn := include "auth_proxy.getAutoIAMAuthn" (dict "source" $sourceData "root" $root) -}}
+- name: alloydb-auth-proxy
+  image: asia.gcr.io/alloydb-connectors/alloydb-auth-proxy:1
+  args:
+    {{- if eq $publicDB "true" }}
+    - --public-ip
+    {{- end }}
+    {{- if eq $autoIAMAuthn "true" }}
+    - --auto-iam-authn
+    {{- end }}
+    - {{ $sourceData.instance_uri }}?port=10000
+  restartPolicy: Always
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    runAsUser: 65532
+    runAsGroup: 65532
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  {{- with $root.Values.authProxy.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Check if a specific source needs auth proxy */}}
+{{- define "auth_proxy.needs_proxy" -}}
+{{- $sourceRef := .sourceRef -}}
+{{- $root := .root -}}
+{{- $needsProxy := false -}}
+{{- range $root.Values.sources -}}
+  {{- if eq .name $sourceRef -}}
+    {{- if and .auth_proxy (or (eq .auth_proxy "cloud_sql") (eq .auth_proxy "alloydb")) -}}
+      {{- $needsProxy = true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $needsProxy -}}
 {{- end -}}

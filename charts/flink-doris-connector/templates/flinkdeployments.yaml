@@ -1,0 +1,197 @@
+{{- $namespace := $.Release.Namespace }}
+{{- range .Values.pipelines }}
+{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
+{{- $sourceType := .job.sourceType }}
+{{- $sourceDatabase := .job.sourceDatabase }}
+{{- $slotName := (printf "%s-%s" $namespace .name) | replace "-" "_" }}
+{{- $sourceConfDefault := dict "database-name" $sourceDatabase "slot.name" $slotName }}
+---
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: {{ $metadataName }}
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "helm-chart.labels" $ | nindent 4 }}
+  {{- with $.Values.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $.Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  image: {{ include "flink.imagePath" $ }}
+  imagePullPolicy: {{ $.Values.image.pullPolicy }}
+  flinkVersion: {{ $.Values.flinkVersion }}
+  serviceAccount: {{ default (include "helm-chart.fullname" $) $.Values.serviceAccount }}
+  {{- with $.Values.ingress }}
+  ingress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  podTemplate:
+    {{- if or $.Values.podLabels $.Values.podAnnotations }}
+    metadata:
+      {{- with $.Values.podLabels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    spec:
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- $sourceRef := default $.Values.global.job.sourceRef .job.sourceRef }}
+      {{- if eq (include "auth_proxy.needs_proxy" (dict "sourceRef" $sourceRef "root" $)) "true" }}
+      initContainers:
+        {{- include "auth_proxy.single_source" (dict "sourceRef" $sourceRef "root" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: flink-main-container
+          {{- with $.Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- range list "data" "log" }}
+            - name: flink-{{ . }}
+              mountPath: /opt/flink/{{ . }}
+          {{- end }}
+          {{- with $.Values.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $.Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+      {{- range list "data" "log" }}
+        - name: flink-{{ . }}
+          {{- $config := index $.Values.persistence . }}
+          {{- if $config.enabled }}
+          {{- if $config.csi }}
+          csi:
+            {{- toYaml $config.csi | nindent 12 }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: flink-{{ . }}
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- end }}
+  jobManager:
+    replicas: {{ default $.Values.global.jobManager.replicas (and .jobManager .jobManager.replicas) }}
+    resource:
+      {{- $mergedJobManagerResource := merge (default dict (and .jobManager .jobManager.resource)) $.Values.global.jobManager.resource }}
+      {{- $mergedJobManagerResource | toYaml | nindent 6 }}
+    podTemplate:
+      {{- $mergedJobManagerPodTemplate := merge (default dict (and .jobManager .jobManager.podTemplate)) (default dict $.Values.global.jobManager.podTemplate) }}
+      {{- $mergedJobManagerPodTemplate | toYaml | nindent 6 }}
+  taskManager:
+    replicas: {{ default $.Values.global.taskManager.replicas (and .taskManager .taskManager.replicas) }}
+    resource:
+      {{- $mergedTaskManagerResource := merge (default dict (and .taskManager .taskManager.resource)) $.Values.global.taskManager.resource }}
+      {{- $mergedTaskManagerResource | toYaml | nindent 6 }}
+    podTemplate:
+      {{- $mergedTaskManagerPodTemplate := merge (default dict (and .taskManager .taskManager.podTemplate)) (default dict $.Values.global.taskManager.podTemplate) }}
+      {{- $mergedTaskManagerPodTemplate | toYaml | nindent 6 }}
+  flinkConfiguration:
+    ### Directory configuration
+    web.upload.dir: {{ $.Values.webUploadDir }}
+    state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
+    state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
+    {{- $mergedFlinkConfig := merge (default dict .flinkConfiguration) (default dict $.Values.global.job.flinkConfiguration) }}
+    {{- if $mergedFlinkConfig }}
+    ### User provided configuration
+    # flinkConfiguration must be map of str: str.
+    # Iterate through and quote the values, in case they look like integers.
+    {{- range $key, $val := $mergedFlinkConfig }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+    {{- end }}
+  {{- with .restartNonce }}
+  restartNonce: {{ . }}
+  {{- end }}
+  job:
+    jarURI: file:///opt/flink/lib/flink-doris-connector.jar
+    entryClass: org.apache.doris.flink.tools.cdc.CdcTools
+    parallelism: {{ default $.Values.global.job.parallelism .job.parallelism }}
+    state: {{ default $.Values.global.job.state .job.state }}
+    upgradeMode: {{ default $.Values.global.job.upgradeMode .job.upgradeMode }}
+    allowNonRestoredState: {{ default $.Values.global.job.allowNonRestoredState .job.allowNonRestoredState }}
+    {{- with .job.checkpointTriggerNonce }}
+    checkpointTriggerNonce: {{ . }}
+    {{- end }}
+    {{- with .job.savepointTriggerNonce }}
+    savepointTriggerNonce: {{ . }}
+    {{- end }}
+    {{- with .job.initialSavepointPath }}
+    initialSavepointPath: {{ . }}
+    {{- end }}
+    {{- with .job.savepointRedeployNonce }}
+    savepointRedeployNonce: {{ . }}
+    {{- end }}
+    {{- with .job.autoscalerResetNonce }}
+    autoscalerResetNonce: {{ . }}
+    {{- end }}
+    args:
+      - "{{ $sourceType }}-sync-database"
+      - --database
+      - {{ .job.sinkDatabase | quote }}
+      - --job-name
+      - {{ .name | quote }}
+      {{- if .job.sinkTablePrefix }}
+      - --table-prefix
+      - {{ .job.sinkTablePrefix | quote }}
+      {{- end }}
+      {{- if .job.sinkTableSuffix }}
+      - --table-suffix
+      - {{ .job.sinkTableSuffix | quote }}
+      {{- end }}
+      {{- if .job.includingTables }}
+      - --including-tables
+      - {{ .job.includingTables | quote }}
+      {{- end }}
+      {{- if .job.excludingTables }}
+      - --excluding-tables
+      - {{ .job.excludingTables | quote }}
+      {{- end }}
+      {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.job.sourceRef .job.sourceRef)) | fromYaml) (default dict .job.sourceConf) $.Values.global.job.sourceConf $sourceConfDefault }}
+      - --{{ $sourceType }}-conf
+      - "{{ $key }}={{ $value }}"
+      {{- end }}
+      {{- range $key, $value := merge (include "getSinkDetails" (dict "root" $ "sinkRef" (default $.Values.global.job.sinkRef .job.sinkRef)) | fromYaml) (default dict .job.sinkConf) $.Values.global.job.sinkConf }}
+      - --sink-conf
+      - "{{ $key }}={{ $value }}"
+      {{- end }}
+      {{- range $key, $value := merge (default dict .job.tableConf) $.Values.global.job.tableConf }}
+      - --table-conf
+      - "{{ $key }}={{ $value }}"
+      {{- end }}
+      {{- if or .job.singleSink $.Values.global.job.singleSink }}
+      - --single-sink
+      - {{ default $.Values.global.job.singleSink .job.singleSink | quote }}
+      {{- end }}
+      {{- range concat (default list .job.extraArgs) (default list $.Values.global.job.extraArgs) }}
+      - {{ . | quote }}
+      {{- end }}
+{{- end }}

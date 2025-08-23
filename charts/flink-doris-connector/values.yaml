@@ -25,35 +25,17 @@ authProxy:
 # Sources
 sources: []
 # sources:
-#   # Example 1: Cloud SQL with global defaults (private IP, no auto IAM)
+#   # Example 1: Cloud SQL with auth proxy
 #   - name: cake-mysql-stage
 #     auth_proxy: cloud_sql
 #     driver: mysql
 #     instance_uri: bef-cake-sandbox:asia-southeast1:cake-mysql8-stage
-#     # Uses global defaults: publicDB: false, autoIAMAuthn: false
-#
-#   # Example 2: AlloyDB with source-specific overrides (public IP, auto IAM)
-#   - name: cake-alloydb-stage
-#     auth_proxy: alloydb
-#     driver: postgres
-#     instance_uri: projects/bef-cake-sandbox/locations/asia-southeast1/clusters/cake-alloydb-stage-cluster/instances/cake-alloydb-stage
-#     publicDB: true      # Override global default
-#     autoIAMAuthn: true  # Override global default
-#
-#   # Example 3: Cloud SQL with mixed overrides (private IP, auto IAM)
-#   - name: cake-mysql-prod
-#     auth_proxy: cloud_sql
-#     driver: mysql
-#     instance_uri: bef-cake-prod:asia-southeast1:cake-mysql8-prod
-#     autoIAMAuthn: true  # Override global default, publicDB uses global default (false)
-#
-#   # Example 4: Direct connection (no auth proxy)
+#   # Example 2: Direct connection (no auth proxy)
 #   - name: mysql-example
 #     host: test.tld
 #     port: 3306
 #     username: debezium
 #     password: dbz
-#     # publicDB and autoIAMAuthn not applicable for non-auth_proxy sources
 
 # Sinks
 sinks: []
@@ -72,18 +54,6 @@ image:
   pullPolicy: IfNotPresent
 flinkVersion: v1_20
 serviceAccount: flink
-jobManager:
-  replicas: 1
-  resource:
-    cpu: 0.1
-    memory: 1024Mi
-  podTemplate: {}
-taskManager:
-  replicas: 1
-  resource:
-    cpu: 0.1
-    memory: 1024Mi
-  podTemplate: {}
 ingress: {}
 affinity: {}
 nodeSelector: {}
@@ -100,25 +70,56 @@ persistence:
   log:
     enabled: false
 objectStore: file:///opt/flink/data
-highAvailability:
-  enabled: false
+webUploadDir: /opt/flink/data
 global:
-  parallelism: 1
-  state: running
-  upgradeMode: savepoint
-  allowNonRestoredState: false
-  sourceRef: ~
-  sourceConf: {}
-  sinkRef: ~
-  sinkConf: {}
-  tableConf: {}
-  singleSink: ~
-  extraArgs: []
+  jobManager:
+    replicas: 1
+    resource:
+      cpu: 0.1
+      memory: 512Mi
+    podTemplate: {}
+  taskManager:
+    replicas: 1
+    resource:
+      cpu: 0.1
+      memory: 1024Mi
+    podTemplate: {}
   flinkConfiguration: {}
-sessionJobs: []
-# sessionJobs:
-#   - name: job-name
-#     resetNonce: 0
+  # flinkConfiguration:
+  #   # General configuration
+  #   pipeline.max-parallelism: 1
+  #   # Job Manager resources configuration
+  #   kubernetes.jobmanager.cpu.limit-factor: 5
+  #   kubernetes.jobmanager.memory.limit-factor: 1.2
+  #   jobmanager.memory.jvm-metaspace.size: 128 mb
+  #   jobmanager.memory.jvm-overhead.min: 0 mb
+  #   jobmanager.memory.jvm-overhead.max: 0 mb
+  #   # Task Manager resources configuration
+  #   kubernetes.taskmanager.cpu.limit-factor: 5
+  #   kubernetes.taskmanager.memory.limit-factor: 1.2
+  #   taskmanager.memory.managed.size: 0 mb
+  #   taskmanager.memory.network.min: 8 mb
+  #   taskmanager.memory.network.max: 8 mb
+  #   taskmanager.memory.jvm-metaspace.size: 128 mb
+  #   taskmanager.memory.jvm-overhead.min: 0 mb
+  #   taskmanager.memory.jvm-overhead.max: 0 mb
+  job:
+    parallelism: 1
+    state: running
+    upgradeMode: last-state
+    allowNonRestoredState: false
+    sourceRef: ~
+    sourceConf: {}
+    sinkRef: ~
+    sinkConf: {}
+    tableConf: {}
+    singleSink: ~
+    extraArgs: []
+pipelines: []
+# pipelines:
+#   # Pipeline 1: Uses global settings
+#   - name: global-pipeline
+#     resetNonce: 1
 #     job:
 #       sourceType: mysql
 #       sourceDatabase: inventory
@@ -127,5 +128,18 @@ sessionJobs: []
 #       sourceRef: mysql-example
 #       sinkRef: doris-cluster
 #       singleSink: true
-#       extraArgs: []
-#     flinkConfiguration: {}
+#   # Pipeline 2: Override settings
+#   - name: custom-resource-pipeline
+#     flinkConfiguration:
+#       kubernetes.taskmanager.cpu.limit-factor: 10
+#     taskManager:
+#       resource:
+#         memory: 2048Mi
+#     job:
+#       sourceType: mysql
+#       sourceDatabase: inventory
+#       sinkDatabase: inventory_mysql_custom
+#       sourceRef: cake-mysql-stage
+#       sinkRef: doris-cluster
+#       singleSink: true
+#       extraArgs: ["--additional-config", "custom-value"]
