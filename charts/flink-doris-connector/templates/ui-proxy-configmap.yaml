@@ -43,6 +43,15 @@ data:
                 
                 # Fix redirects to preserve the correct port and subpath  
                 proxy_redirect ~^[^:]+://[^/]+(.*)$ /{{ $metadataName }}$1;
+                
+                # Rewrite response content to fix absolute URLs
+                sub_filter_once off;
+                sub_filter_types *;
+                sub_filter '"/' '"/{{ $metadataName }}/';
+                sub_filter "'/" "'/{{ $metadataName }}/";
+                sub_filter 'href="/' 'href="/{{ $metadataName }}/';
+                sub_filter 'src="/' 'src="/{{ $metadataName }}/';
+                sub_filter 'action="/' 'action="/{{ $metadataName }}/';
             }
             {{- end }}
         }
