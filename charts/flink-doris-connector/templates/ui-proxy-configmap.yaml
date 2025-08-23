@@ -33,9 +33,9 @@ data:
             
             {{- range .Values.pipelines }}
             {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
-            # Route for {{ .name }} pipeline (metadata: {{ $metadataName }})
-            location /{{ $metadataName }}/ {
-                proxy_pass http://{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.cluster.local:8081/;
+            # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) - handles both with/without trailing slash
+            location ~ ^/{{ $metadataName }}(/.*)?$ {
+                proxy_pass http://{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.cluster.local:8081$1;
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -43,15 +43,6 @@ data:
                 
                 # Fix redirects to preserve the correct port and subpath  
                 proxy_redirect ~^[^:]+://[^/]+(.*)$ /{{ $metadataName }}$1;
-                
-                # Rewrite response content to fix absolute URLs
-                sub_filter_once off;
-                sub_filter_types *;
-                sub_filter '"/' '"/{{ $metadataName }}/';
-                sub_filter "'/" "'/{{ $metadataName }}/";
-                sub_filter 'href="/' 'href="/{{ $metadataName }}/';
-                sub_filter 'src="/' 'src="/{{ $metadataName }}/';
-                sub_filter 'action="/' 'action="/{{ $metadataName }}/';
             }
             {{- end }}
         }
