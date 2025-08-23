@@ -108,26 +108,25 @@ global:
     state: running
     upgradeMode: last-state
     allowNonRestoredState: false
-    sourceRef: ~
-    sourceConf: {}
-    sinkRef: ~
-    sinkConf: {}
-    tableConf: {}
-    singleSink: ~
-    extraArgs: []
+  sourceRef: ~
+  sourceConf: {}
+  sinkRef: ~
+  sinkConf: {}
+  tableConf: {}
+  singleSink: ~
+  extraArgs: []
 pipelines: []
 # pipelines:
 #   # Pipeline 1: Uses global settings
 #   - name: global-pipeline
 #     resetNonce: 1
-#     job:
-#       sourceType: mysql
-#       sourceDatabase: inventory
-#       sinkDatabase: inventory_mysql
-#       excludingTables: geom
-#       sourceRef: mysql-example
-#       sinkRef: doris-cluster
-#       singleSink: true
+#     sourceType: mysql
+#     sourceDatabase: inventory
+#     sinkDatabase: inventory_mysql
+#     excludingTables: geom
+#     sourceRef: mysql-example
+#     sinkRef: doris-cluster
+#     singleSink: true
 #   # Pipeline 2: Override settings
 #   - name: custom-resource-pipeline
 #     flinkConfiguration:
@@ -135,11 +134,10 @@ pipelines: []
 #     taskManager:
 #       resource:
 #         memory: 2048Mi
-#     job:
-#       sourceType: mysql
-#       sourceDatabase: inventory
-#       sinkDatabase: inventory_mysql_custom
-#       sourceRef: cake-mysql-stage
-#       sinkRef: doris-cluster
-#       singleSink: true
-#       extraArgs: ["--additional-config", "custom-value"]
+#     sourceType: mysql
+#     sourceDatabase: inventory
+#     sinkDatabase: inventory_mysql_custom
+#     sourceRef: cake-mysql-stage
+#     sinkRef: doris-cluster
+#     singleSink: true
+#     extraArgs: ["--additional-config", "custom-value"]

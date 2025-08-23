@@ -1,10 +1,6 @@
 {{- $namespace := $.Release.Namespace }}
 {{- range .Values.pipelines }}
 {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
-{{- $sourceType := .job.sourceType }}
-{{- $sourceDatabase := .job.sourceDatabase }}
-{{- $slotName := (printf "%s-%s" $namespace .name) | replace "-" "_" }}
-{{- $sourceConfDefault := dict "database-name" $sourceDatabase "slot.name" $slotName }}
 ---
 apiVersion: flink.apache.org/v1beta1
 kind: FlinkDeployment
@@ -58,7 +54,7 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- $sourceRef := default $.Values.global.job.sourceRef .job.sourceRef }}
+      {{- $sourceRef := default $.Values.global.sourceRef .sourceRef }}
       {{- if eq (include "auth_proxy.needs_proxy" (dict "sourceRef" $sourceRef "root" $)) "true" }}
       initContainers:
         {{- include "auth_proxy.single_source" (dict "sourceRef" $sourceRef "root" $) | nindent 8 }}
@@ -119,12 +115,12 @@ spec:
     web.upload.dir: {{ $.Values.webUploadDir }}
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
     state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
-    {{- $mergedFlinkConfig := merge (default dict .flinkConfiguration) (default dict $.Values.global.job.flinkConfiguration) }}
-    {{- if $mergedFlinkConfig }}
+    {{- $mergedFlinkConfig := merge (default dict .flinkConfiguration) (default dict $.Values.global.flinkConfiguration) }}
+    {{- with $mergedFlinkConfig }}
     ### User provided configuration
     # flinkConfiguration must be map of str: str.
     # Iterate through and quote the values, in case they look like integers.
-    {{- range $key, $val := $mergedFlinkConfig }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
     {{- end }}
@@ -134,64 +130,53 @@ spec:
   job:
     jarURI: file:///opt/flink/lib/flink-doris-connector.jar
     entryClass: org.apache.doris.flink.tools.cdc.CdcTools
-    parallelism: {{ default $.Values.global.job.parallelism .job.parallelism }}
-    state: {{ default $.Values.global.job.state .job.state }}
-    upgradeMode: {{ default $.Values.global.job.upgradeMode .job.upgradeMode }}
-    allowNonRestoredState: {{ default $.Values.global.job.allowNonRestoredState .job.allowNonRestoredState }}
-    {{- with .job.checkpointTriggerNonce }}
-    checkpointTriggerNonce: {{ . }}
-    {{- end }}
-    {{- with .job.savepointTriggerNonce }}
-    savepointTriggerNonce: {{ . }}
-    {{- end }}
-    {{- with .job.initialSavepointPath }}
-    initialSavepointPath: {{ . }}
-    {{- end }}
-    {{- with .job.savepointRedeployNonce }}
-    savepointRedeployNonce: {{ . }}
-    {{- end }}
-    {{- with .job.autoscalerResetNonce }}
-    autoscalerResetNonce: {{ . }}
-    {{- end }}
+    {{- $sourceType := default $.Values.global.sourceType .sourceType }}
+    {{- $sourceDatabase := default $.Values.global.sourceDatabase .sourceDatabase }}
+    {{- $slotName := (printf "%s-%s" $namespace .name) | replace "-" "_" }}
+    {{- $sourceConfDefault := dict "database-name" $sourceDatabase "slot.name" $slotName }}
     args:
       - "{{ $sourceType }}-sync-database"
       - --database
-      - {{ .job.sinkDatabase | quote }}
+      - {{ default $.Values.global.sinkDatabase .sinkDatabase | quote }}
       - --job-name
       - {{ .name | quote }}
-      {{- if .job.sinkTablePrefix }}
+      {{- with default $.Values.global.sinkTablePrefix .sinkTablePrefix }}
       - --table-prefix
-      - {{ .job.sinkTablePrefix | quote }}
+      - {{ . | quote }}
       {{- end }}
-      {{- if .job.sinkTableSuffix }}
+      {{- with default $.Values.global.sinkTableSuffix .sinkTableSuffix }}
       - --table-suffix
-      - {{ .job.sinkTableSuffix | quote }}
+      - {{ . | quote }}
       {{- end }}
-      {{- if .job.includingTables }}
+      {{- with default $.Values.global.includingTables .includingTables }}
       - --including-tables
-      - {{ .job.includingTables | quote }}
+      - {{ . | quote }}
       {{- end }}
-      {{- if .job.excludingTables }}
+      {{- with default $.Values.global.excludingTables .excludingTables }}
       - --excluding-tables
-      - {{ .job.excludingTables | quote }}
+      - {{ . | quote }}
       {{- end }}
-      {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.job.sourceRef .job.sourceRef)) | fromYaml) (default dict .job.sourceConf) $.Values.global.job.sourceConf $sourceConfDefault }}
+      {{- range $key, $value := merge (include "getDatasourceDetails" (dict "root" $ "sourceRef" (default $.Values.global.sourceRef .sourceRef)) | fromYaml) (default dict .sourceConf) $.Values.global.sourceConf $sourceConfDefault }}
       - --{{ $sourceType }}-conf
       - "{{ $key }}={{ $value }}"
       {{- end }}
-      {{- range $key, $value := merge (include "getSinkDetails" (dict "root" $ "sinkRef" (default $.Values.global.job.sinkRef .job.sinkRef)) | fromYaml) (default dict .job.sinkConf) $.Values.global.job.sinkConf }}
+      {{- range $key, $value := merge (include "getSinkDetails" (dict "root" $ "sinkRef" (default $.Values.global.sinkRef .sinkRef)) | fromYaml) (default dict .sinkConf) $.Values.global.sinkConf }}
       - --sink-conf
       - "{{ $key }}={{ $value }}"
       {{- end }}
-      {{- range $key, $value := merge (default dict .job.tableConf) $.Values.global.job.tableConf }}
+      {{- range $key, $value := merge (default dict .tableConf) $.Values.global.tableConf }}
       - --table-conf
       - "{{ $key }}={{ $value }}"
       {{- end }}
-      {{- if or .job.singleSink $.Values.global.job.singleSink }}
+      {{- with default $.Values.global.singleSink .singleSink }}
       - --single-sink
-      - {{ default $.Values.global.job.singleSink .job.singleSink | quote }}
-      {{- end }}
-      {{- range concat (default list .job.extraArgs) (default list $.Values.global.job.extraArgs) }}
       - {{ . | quote }}
       {{- end }}
+      {{- range concat (default list .extraArgs) (default list $.Values.global.extraArgs) }}
+      - {{ . | quote }}
+      {{- end }}
+    {{- $mergedJob := merge (default dict .job) (default dict $.Values.global.job) }}
+    {{- range $key, $value := $mergedJob }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
 {{- end }}
