@@ -12,6 +12,45 @@ operator:
 heimdall:
   enabled: true
 
+# Reverse Proxy for Flink UIs
+proxy:
+  enabled: true
+  replicas: 1
+  image:
+    repository: nginx
+    tag: "1.25-alpine"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8081
+    annotations: {}
+    # For LoadBalancer type
+    # loadBalancerIP: ""
+    # loadBalancerSourceRanges: []
+    # For NodePort type
+    # nodePort: 30081
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    fsGroup: 101
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+
 # Auth Proxy
 authProxy:
   global:

@@ -38,23 +38,10 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          {{- with .Values.env }}
           env:
-            - name: QUARKUS_HTTP_CORS_ORIGINS
-              value: {{ .Values.cors | quote }}
-            - name: HEIMDALL_PATTERNS_DISPLAY_NAME
-              value: "$jobName"
-            - name: HEIMDALL_ENDPOINT_PATH_PATTERNS_FLINK_UI
-              value: {{ printf "%s/$jobName/ui" (trimSuffix "/" .Values.url) }}
-            - name: HEIMDALL_ENDPOINT_PATH_PATTERNS_FLINK_API
-              value: {{ printf "%s/$jobName/api" (trimSuffix "/" .Values.url) }}
-            - name: HEIMDALL_ENDPOINT_PATH_PATTERNS_METRICS
-              value: {{ printf "%s/$jobName/metrics" (trimSuffix "/" .Values.url) }}
-            - name: HEIMDALL_ENDPOINT_PATH_PATTERNS_LOGS
-              value: {{ printf "%s/$jobName/logs" (trimSuffix "/" .Values.url) }}
-            - name: HEIMDALL_JOBLOCATOR_K8S_OPERATOR_ENABLED
-              value: "true"
-            - name: HEIMDALL_JOBLOCATOR_K8S_OPERATOR_NAMESPACE_TO_WATCH
-              value: {{ .Values.watchNamespace | quote }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

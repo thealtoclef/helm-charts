@@ -96,11 +96,5 @@ affinity: {}
 rbac:
   create: true
 
-# URL of the Heimdall dashboard
-url: "http://localhost:8080"
-
-# Comma separated list of valid origins allowed for CORS. Change to http://localhost:8001 when using kubectl proxy.
-cors: "*"
-
-# Kubernetes namespace(s) to watch. Supports single namespace or comma-separated list (e.g. "default,prod,staging").
-watchNamespace: default
+# Environment variables
+env: []
