@@ -71,22 +71,22 @@ persistence:
     enabled: false
 objectStore: file:///opt/flink/data
 global:
-  jobManager:
-    replicas: 1
-    resource:
-      cpu: 0.1
-      memory: 512Mi
-    podTemplate: {}
-  taskManager:
-    replicas: 1
-    resource:
-      cpu: 0.1
-      memory: 1024Mi
-    podTemplate: {}
+  jobManager: {}
+  # jobManager:
+  #   replicas: 1
+  #   resource:
+  #     cpu: 0.1
+  #     memory: 512Mi
+  #   podTemplate: {}
+  taskManager: {}
+  # taskManager:
+  #   replicas: 1
+  #   resource:
+  #     cpu: 0.1
+  #     memory: 1024Mi
+  #   podTemplate: {}
   flinkConfiguration: {}
   # flinkConfiguration:
-  #   # General configuration
-  #   pipeline.max-parallelism: 1
   #   # Job Manager resources configuration
   #   kubernetes.jobmanager.cpu.limit-factor: 5
   #   kubernetes.jobmanager.memory.limit-factor: 1.2
@@ -102,11 +102,11 @@ global:
   #   taskmanager.memory.jvm-metaspace.size: 128 mb
   #   taskmanager.memory.jvm-overhead.min: 0 mb
   #   taskmanager.memory.jvm-overhead.max: 0 mb
-  job:
-    parallelism: 1
-    state: running
-    upgradeMode: last-state
-    allowNonRestoredState: false
+  job: {}
+  # job:
+  #   state: running
+  #   upgradeMode: last-state
+  #   allowNonRestoredState: false
   sourceRef: ~
   sourceConf: {}
   sinkRef: ~
