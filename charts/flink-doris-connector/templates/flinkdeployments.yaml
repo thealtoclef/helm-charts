@@ -9,6 +9,7 @@ metadata:
   namespace: {{ $namespace }}
   labels:
     {{- include "helm-chart.labels" $ | nindent 4 }}
+    pipelineName: {{ .name }}
   {{- with $.Values.labels }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -28,11 +29,10 @@ spec:
   podTemplate:
     {{- if or $.Values.podLabels $.Values.podAnnotations }}
     metadata:
+      {{- with $.Values.podLabels }}
       labels:
-        pipelineName: {{ .name }}
-        {{- with $.Values.podLabels }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
+      {{- end }}
       {{- with $.Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}

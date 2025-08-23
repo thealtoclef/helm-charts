@@ -27,6 +27,7 @@ data:
             
             # Root redirect to show available deployments
             location = / {
+                add_header Content-Type text/html;
                 return 200 '<h1>Flink Deployments</h1>{{- range .Values.pipelines }}<p><a href="/{{ .name }}/">{{ .name }}</a></p>{{- end }}';
             }
             
@@ -35,6 +36,16 @@ data:
             # Route for {{ .name }} pipeline (metadata: {{ $metadataName }})
             location /{{ .name }}/ {
                 proxy_pass http://{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.cluster.local:8081/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Port $server_port;
+                
+                # Handle both HTTP and HTTPS redirects, rewrite to relative paths
+                proxy_redirect ~^https?://[^/]+/(.*)$ /$1;
+                proxy_redirect ~^https?://[^/]+$ /;
             }
             {{- end }}
         }
