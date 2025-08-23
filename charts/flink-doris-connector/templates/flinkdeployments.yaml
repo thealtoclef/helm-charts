@@ -111,8 +111,7 @@ spec:
       {{- $mergedTaskManagerPodTemplate := merge (default dict (and .taskManager .taskManager.podTemplate)) (default dict $.Values.global.taskManager.podTemplate) }}
       {{- $mergedTaskManagerPodTemplate | toYaml | nindent 6 }}
   flinkConfiguration:
-    ### Directory configuration
-    web.upload.dir: {{ $.Values.webUploadDir }}
+    ### State directory configuration
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
     state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
     {{- $mergedFlinkConfig := merge (default dict .flinkConfiguration) (default dict $.Values.global.flinkConfiguration) }}

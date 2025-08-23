@@ -70,7 +70,6 @@ persistence:
   log:
     enabled: false
 objectStore: file:///opt/flink/data
-webUploadDir: /opt/flink/data
 global:
   jobManager:
     replicas: 1
