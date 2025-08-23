@@ -1,0 +1,32 @@
+apiVersion: v2
+name: heimdall
+description: Helm chart for Heimdall - Dashboard for operating Flink jobs and deployments
+
+# This is a subchart for the Heimdall dashboard that provides a UI for managing
+# Flink deployments created by the Flink Kubernetes Operator.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "0.9.0"
+
+home: https://github.com/sap1ens/heimdall
+sources:
+  - https://github.com/sap1ens/heimdall
+maintainers:
+  - name: sap1ens
+    url: https://github.com/sap1ens
+
+keywords:
+  - flink
+  - dashboard
+  - monitoring
+  - kubernetes
+  - operator

@@ -8,6 +8,10 @@ annotations: {}
 operator:
   enabled: true
 
+# Heimdall Dashboard for Flink Jobs
+heimdall:
+  enabled: true
+
 # Auth Proxy
 authProxy:
   global:
