@@ -218,16 +218,10 @@ Create the path of the operator image to use
     {{- end }}
     - {{ $sourceData.instance_uri }}?port=10000
   restartPolicy: Always
+  {{- with $root.Values.authProxy.securityContext }}
   securityContext:
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
-    runAsUser: 65532
-    runAsGroup: 65532
-    capabilities:
-      drop:
-        - ALL
-    seccompProfile:
-      type: RuntimeDefault
+    {{- toYaml . | nindent 4 }}
+  {{- end -}}
   {{- with $root.Values.authProxy.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
