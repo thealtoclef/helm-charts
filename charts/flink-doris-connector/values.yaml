@@ -21,10 +21,23 @@ uiProxy:
     tag: stable-alpine
     pullPolicy: IfNotPresent
   imagePullSecrets: []
+
   podAnnotations: {}
   podLabels: {}
-  podSecurityContext: {}
-  securityContext: {}
+
+  podSecurityContext:
+    fsGroup: 65534
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    runAsUser: 65532
+    runAsGroup: 65532
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
 
   service:
     type: ClusterIP
@@ -68,14 +81,10 @@ uiProxy:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 10
-    periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /health
       port: http
-    initialDelaySeconds: 5
-    periodSeconds: 5
 
   nodeSelector: {}
 
