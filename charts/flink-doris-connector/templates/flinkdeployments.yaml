@@ -67,6 +67,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           {{- range list "data" "log" }}
             - name: flink-{{ . }}
               mountPath: /opt/flink/{{ . }}
@@ -80,6 +82,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
       {{- range list "data" "log" }}
         - name: flink-{{ . }}
           {{- $config := index $.Values.persistence . }}
