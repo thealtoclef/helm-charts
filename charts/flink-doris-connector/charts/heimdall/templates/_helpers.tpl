@@ -40,7 +40,6 @@ helm.sh/chart: {{ include "heimdall.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-component: heimdall
 {{- end }}
 
 {{/*
