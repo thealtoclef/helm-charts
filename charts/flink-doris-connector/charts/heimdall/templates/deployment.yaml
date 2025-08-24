@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "heimdall.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       {{- include "heimdall.selectorLabels" . | nindent 6 }}

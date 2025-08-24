@@ -15,7 +15,7 @@ heimdall:
 # UI Proxy for Flink UIs
 uiProxy:
   enabled: true
-  replicaCount: 1
+  replicas: 1
   image:
     repository: nginx
     tag: stable-alpine
