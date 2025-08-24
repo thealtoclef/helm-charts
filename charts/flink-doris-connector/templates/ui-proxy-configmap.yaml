@@ -25,25 +25,11 @@ data:
           return 200 "healthy\n";
         }
         
-        # Root page - route to heimdall if enabled, otherwise show deployment list
-        location = / {
-          {{- if .Values.heimdall.enabled }}
-          proxy_pass http://{{ include "parent.heimdall.fullname" . }}:{{ .Values.heimdall.service.port | default 8080 }}/;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          {{- else }}
-          add_header Content-Type text/html;
-          return 200 '<h1>Flink Deployments</h1>{{- range .Values.pipelines }}{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}<p><a href="/{{ $metadataName }}/">{{ .name }} ({{ $metadataName }})</a></p>{{- end }}';
-          {{- end }}
-        }
-        
+        # Flink deployments - specific routes under /flink/
         {{- range .Values.pipelines }}
         {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
-
-        # Route for {{ .name }} pipeline (metadata: {{ $metadataName }})
-        location /{{ $metadataName }}/ {
+        # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
+        location /flink/{{ $metadataName }}/ {
           proxy_pass http://{{ $metadataName }}-rest:8081/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
@@ -51,9 +37,25 @@ data:
           proxy_set_header X-Forwarded-Proto $scheme;
           
           # Fix redirects to preserve the correct port and subpath  
-          proxy_redirect ~^[^:]+://[^/]+(.*)$ /{{ $metadataName }}$1;
+          proxy_redirect ~^[^:]+://[^/]+(.*)$ /flink/{{ $metadataName }}$1;
         }
-
+        {{- end }}
+        
+        {{- if .Values.heimdall.enabled }}
+        # Route everything else to heimdall (catch-all)
+        location / {
+          proxy_pass http://{{ include "parent.heimdall.fullname" . }}:{{ .Values.heimdall.service.port | default 8080 }}/;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        {{- else }}
+        # Fallback: show deployment list if heimdall disabled
+        location = / {
+          add_header Content-Type text/html;
+          return 200 '<h1>Flink Deployments</h1>{{- range .Values.pipelines }}{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}<p><a href="/flink/{{ $metadataName }}/">{{ .name }} ({{ $metadataName }})</a></p>{{- end }}';
+        }
         {{- end }}
       }
     }
