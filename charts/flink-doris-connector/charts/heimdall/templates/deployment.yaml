@@ -38,10 +38,14 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          {{- with .Values.env }}
           env:
+            - name: HEIMDALL_JOBLOCATOR_K8S_OPERATOR_ENABLED
+              value: "true"
+            - name: HEIMDALL_JOBLOCATOR_K8S_OPERATOR_NAMESPACE_TO_WATCH
+              value: {{ .Release.Namespace }}
+            {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
