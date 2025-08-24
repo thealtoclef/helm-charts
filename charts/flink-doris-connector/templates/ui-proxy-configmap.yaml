@@ -17,7 +17,7 @@ data:
       keepalive_timeout 65;
       
       server {
-        listen 8080;
+        listen {{ .Values.uiProxy.service.port }};
         server_name _;
         
         # Health check endpoint
@@ -44,7 +44,7 @@ data:
         {{- if .Values.heimdall.enabled }}
         # Route everything else to heimdall (catch-all)
         location / {
-          proxy_pass http://{{ include "parent.heimdall.fullname" . }}:{{ .Values.heimdall.service.port | default 8080 }}/;
+          proxy_pass http://{{ include "parent.heimdall.fullname" . }}:{{ .Values.heimdall.service.port }}/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
