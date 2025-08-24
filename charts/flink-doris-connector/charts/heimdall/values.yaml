@@ -41,7 +41,6 @@ podSecurityContext:
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
-
 securityContext:
   runAsUser: 185
   runAsGroup: 185
