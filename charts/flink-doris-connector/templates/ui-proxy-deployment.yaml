@@ -63,10 +63,6 @@ spec:
               subPath: nginx.conf
             - name: tmp
               mountPath: /tmp
-            - name: var-cache
-              mountPath: /var/cache/nginx
-            - name: var-run
-              mountPath: /var/run
       {{- with .Values.uiProxy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -84,9 +80,5 @@ spec:
           configMap:
             name: ui-proxy-config
         - name: tmp
-          emptyDir: {}
-        - name: var-cache
-          emptyDir: {}
-        - name: var-run
           emptyDir: {}
 {{- end }}

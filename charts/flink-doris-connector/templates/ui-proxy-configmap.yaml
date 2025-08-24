@@ -17,7 +17,7 @@ data:
       keepalive_timeout 65;
       
       server {
-        listen 8081;
+        listen 8080;
         server_name _;
         
         # Health check endpoint
