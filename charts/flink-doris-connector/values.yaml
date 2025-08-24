@@ -17,7 +17,7 @@ uiProxy:
   enabled: true
   replicas: 1
   image:
-    repository: nginxinc/nginx-unprivileged
+    repository: docker.io/nginxinc/nginx-unprivileged
     tag: stable-alpine-slim
     pullPolicy: IfNotPresent
   imagePullSecrets: []
