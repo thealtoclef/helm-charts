@@ -22,6 +22,7 @@ spec:
         {{- end }}
       labels:
         {{- include "helm-chart.labels" . | nindent 8 }}
+        component: ui-proxy
         {{- with .Values.uiProxy.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
