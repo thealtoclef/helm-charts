@@ -61,10 +61,10 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
             - name: tmp
               mountPath: /tmp
-            - name: cache
-              mountPath: /var/cache
       {{- with .Values.uiProxy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -81,8 +81,8 @@ spec:
         - name: nginx-config
           configMap:
             name: ui-proxy-config
-        - name: tmp
+        - name: nginx-cache
           emptyDir: {}
-        - name: cache
+        - name: tmp
           emptyDir: {}
 {{- end }}
