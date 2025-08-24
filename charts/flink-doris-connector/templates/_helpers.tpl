@@ -59,6 +59,22 @@ Create robustName that can be used as Kubernetes resource name, and as subdomain
 {{ regexReplaceAll "\\W+" . "-" | replace "_" "-" | lower | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/*
+Heimdall fullname helper for parent chart - replicates the exact logic from heimdall subchart
+*/}}
+{{- define "parent.heimdall.fullname" -}}
+{{- if .Values.heimdall.fullnameOverride }}
+{{- .Values.heimdall.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default "heimdall" .Values.heimdall.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- define "standardize-digest" -}}
 {{- $digest := . -}}
 {{- if not (hasPrefix "sha256:" $digest) -}}
