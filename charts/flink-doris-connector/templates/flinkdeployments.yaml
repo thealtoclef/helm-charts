@@ -126,6 +126,9 @@ spec:
     ### State directory configuration
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
     state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
+    ### High availability configuration
+    high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
+    high-availability.storageDir: {{ $.Values.objectStore }}/{{ .name }}/ha
     {{- $mergedFlinkConfig := merge (default dict .flinkConfiguration) (default dict $.Values.global.flinkConfiguration) }}
     {{- with $mergedFlinkConfig }}
     ### User provided configuration
