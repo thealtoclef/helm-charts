@@ -24,8 +24,8 @@ data:
       sendfile on;
       keepalive_timeout 65;
       
-      # DNS resolver for dynamic upstream resolution - uses system resolver (/etc/resolv.conf)
-      resolver local=on valid=10s;
+      # DNS resolver for dynamic upstream resolution
+      resolver kube-dns.kube-system valid=10s;
       
       server {
         listen {{ .Values.uiProxy.service.port }};
@@ -41,8 +41,9 @@ data:
         {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
         # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
         location /flink/{{ $metadataName }}/ {
-          set $upstream_endpoint {{ $metadataName }}-rest:8081;
-          proxy_pass http://$upstream_endpoint/;
+          set $upstream_host "{{ $metadataName }}-rest";
+          set $upstream_port "8081";
+          proxy_pass http://$upstream_host:$upstream_port/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -56,8 +57,9 @@ data:
         {{- if .Values.heimdall.enabled }}
         # Route everything else to heimdall (catch-all)
         location / {
-          set $heimdall_endpoint {{ include "parent.heimdall.fullname" . }}:{{ .Values.heimdall.service.port }};
-          proxy_pass http://$heimdall_endpoint/;
+          set $heimdall_host "{{ include "parent.heimdall.fullname" . }}";
+          set $heimdall_port "{{ .Values.heimdall.service.port }}";
+          proxy_pass http://$heimdall_host:$heimdall_port/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
