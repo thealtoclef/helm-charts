@@ -41,7 +41,7 @@ spec:
           imagePullPolicy: {{ .Values.uiProxy.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.uiProxy.service.port }}
+              containerPort: {{ .Values.uiProxy.service.port | quote }}
               protocol: TCP
           {{- with .Values.uiProxy.env }}
           env:
