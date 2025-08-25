@@ -66,6 +66,10 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ $.Values.metrics.port }}
+              protocol: TCP
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -116,6 +120,9 @@ spec:
       {{- $mergedTaskManagerPodTemplate := merge (default dict (and .taskManager .taskManager.podTemplate)) (default dict $.Values.global.taskManager.podTemplate) }}
       {{- $mergedTaskManagerPodTemplate | toYaml | nindent 6 }}
   flinkConfiguration:
+    ### Metrics configuration
+    metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+    metrics.reporter.prom.port: {{ $.Values.metrics.port }}
     ### State directory configuration
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
     state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
