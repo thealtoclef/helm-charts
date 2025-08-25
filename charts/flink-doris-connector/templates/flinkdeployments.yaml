@@ -122,7 +122,7 @@ spec:
   flinkConfiguration:
     ### Metrics configuration
     metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
-    metrics.reporter.prom.port: {{ $.Values.metrics.port }}
+    metrics.reporter.prom.port: {{ $.Values.metrics.port | quote }}
     ### State directory configuration
     state.checkpoints.dir: {{ $.Values.objectStore }}/{{ .name }}/checkpoints
     state.savepoints.dir: {{ $.Values.objectStore }}/{{ .name }}/savepoints
