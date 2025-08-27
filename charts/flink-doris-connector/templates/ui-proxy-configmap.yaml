@@ -24,9 +24,6 @@ data:
       sendfile on;
       keepalive_timeout 65;
       
-      # DNS resolver for dynamic upstream resolution
-      resolver kube-dns.kube-system valid=10s;
-      
       server {
         listen {{ .Values.uiProxy.service.port }};
         server_name _;
