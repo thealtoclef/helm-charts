@@ -41,7 +41,7 @@ data:
         {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
         # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
         location /flink/{{ $metadataName }}/ {
-          set $upstream "{{ $metadataName }}-rest.{{ .Release.Namespace }}.svc.{{ .Values.uiProxy.clusterDomain }}:8081";
+          set $upstream "{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.{{ $.Values.uiProxy.clusterDomain }}:8081";
           proxy_pass http://$upstream/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
