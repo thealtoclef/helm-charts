@@ -24,15 +24,15 @@ data:
       sendfile on;
       keepalive_timeout 65;
       
-      # DNS resolver for upstream resolution
+      # DNS resolver for dynamic resolution - prevents startup failures
       resolver {{ .Values.uiProxy.dnsResolver }} valid=10s;
       
       server {
         listen {{ .Values.uiProxy.service.port }};
         server_name _;
         
-        # Health check endpoint
-        location /health {
+        # Health check endpoint - exact match takes precedence
+        location = /health {
           return 200 "healthy\n";
         }
         
@@ -40,16 +40,14 @@ data:
         {{- range .Values.pipelines }}
         {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
         # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
-        location /flink/{{ $metadataName }}/ {
+        location ~ ^/flink/{{ $metadataName }}(/.*)?$ {
           set $upstream "{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.{{ $.Values.uiProxy.clusterDomain }}:8081";
-          proxy_pass http://$upstream/;
+          set $path $1;
+          proxy_pass http://$upstream$path;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
-          
-          # Fix redirects to preserve the correct port and subpath
-          proxy_redirect ~^[^:]+://[^/]+(.*)$ /flink/{{ $metadataName }}$1;
         }
         {{- end }}
         
