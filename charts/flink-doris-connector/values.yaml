@@ -25,6 +25,9 @@ uiProxy:
   # DNS resolver IP for nginx upstream resolution
   # Common values: 10.96.0.10 (standard k8s), 10.64.0.10 (GKE), 169.254.169.254 (GKE metadata)
   dnsResolver: "10.96.0.10"
+  
+  # Kubernetes cluster domain for FQDN resolution
+  clusterDomain: "cluster.local"
 
   podAnnotations: {}
   podLabels: {}
