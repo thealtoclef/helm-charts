@@ -107,22 +107,26 @@ spec:
     {{- with default $.Values.global.jobManager.replicas (and .jobManager .jobManager.replicas) }}
     replicas: {{ . }}
     {{- end }}
+    {{- with merge (default dict (and .jobManager .jobManager.resource)) $.Values.global.jobManager.resource }}
     resource:
-      {{- $mergedJobManagerResource := merge (default dict (and .jobManager .jobManager.resource)) $.Values.global.jobManager.resource }}
-      {{- $mergedJobManagerResource | toYaml | nindent 6 }}
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
+    {{- with merge (default dict (and .jobManager .jobManager.podTemplate)) (default dict $.Values.global.jobManager.podTemplate) }}
     podTemplate:
-      {{- $mergedJobManagerPodTemplate := merge (default dict (and .jobManager .jobManager.podTemplate)) (default dict $.Values.global.jobManager.podTemplate) }}
-      {{- $mergedJobManagerPodTemplate | toYaml | nindent 6 }}
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
   taskManager:
     {{- with default $.Values.global.taskManager.replicas (and .taskManager .taskManager.replicas) }}
     replicas: {{ . }}
     {{- end }}
+    {{- with merge (default dict (and .taskManager .taskManager.resource)) $.Values.global.taskManager.resource }}
     resource:
-      {{- $mergedTaskManagerResource := merge (default dict (and .taskManager .taskManager.resource)) $.Values.global.taskManager.resource }}
-      {{- $mergedTaskManagerResource | toYaml | nindent 6 }}
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
+    {{- with merge (default dict (and .taskManager .taskManager.podTemplate)) (default dict $.Values.global.taskManager.podTemplate) }}
     podTemplate:
-      {{- $mergedTaskManagerPodTemplate := merge (default dict (and .taskManager .taskManager.podTemplate)) (default dict $.Values.global.taskManager.podTemplate) }}
-      {{- $mergedTaskManagerPodTemplate | toYaml | nindent 6 }}
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
   flinkConfiguration:
     ### Metrics configuration
     metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
