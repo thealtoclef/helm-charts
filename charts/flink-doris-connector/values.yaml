@@ -191,7 +191,7 @@ persistence:
     enabled: false
 objectStore: file:///opt/flink/data
 metrics:
-  port: 9999
+  port: 9249
 global:
   jobManager: {}
   # jobManager:
