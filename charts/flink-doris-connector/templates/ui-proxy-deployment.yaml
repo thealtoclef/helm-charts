@@ -59,7 +59,7 @@ spec:
             {{- toYaml .Values.uiProxy.resources | nindent 12 }}
           volumeMounts:
             - name: run
-              mountPath: /var/run/
+              mountPath: /run/
             - name: tmp
               mountPath: /var/lib/nginx/tmp/
             - name: conf
