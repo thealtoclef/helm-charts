@@ -58,12 +58,11 @@ spec:
           resources:
             {{- toYaml .Values.uiProxy.resources | nindent 12 }}
           volumeMounts:
-            - name: run
-              mountPath: /run/
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
             - name: tmp
-              mountPath: /var/lib/nginx/tmp/
-            - name: conf
-              mountPath: /etc/nginx/conf.d
+              mountPath: /tmp/
       {{- with .Values.uiProxy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -77,11 +76,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: run
-          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: ui-proxy-config
         - name: tmp
           emptyDir: {}
-        - name: conf
-          configMap:
-            name: ui-proxy-conf
 {{- end }}
