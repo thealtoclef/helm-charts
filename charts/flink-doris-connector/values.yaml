@@ -17,8 +17,8 @@ uiProxy:
   enabled: true
   replicas: 1
   image:
-    repository: docker.io/nginxinc/nginx-unprivileged
-    tag: stable-alpine-slim
+    repository: cgr.dev/chainguard/nginx
+    tag: latest
     pullPolicy: IfNotPresent
   imagePullSecrets: []
 
@@ -33,13 +33,13 @@ uiProxy:
   podLabels: {}
 
   podSecurityContext:
-    fsGroup: 101
+    fsGroup: 65534
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
   securityContext:
-    runAsUser: 101
-    runAsGroup: 101
+    runAsUser: 65532
+    runAsGroup: 65532
     privileged: false
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true

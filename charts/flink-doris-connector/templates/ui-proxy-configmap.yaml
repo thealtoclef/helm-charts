@@ -2,72 +2,55 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ui-proxy-config
+  name: ui-proxy-conf
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
 data:
-  nginx.conf: |
-    pid /tmp/nginx.pid;
+  ui-proxy.conf: |
+    # DNS resolver for dynamic resolution - prevents startup failures
+    resolver {{ .Values.uiProxy.dnsResolver }} valid=10s;
     
-    events {
-      worker_connections 1024;
-    }
-    
-    http {
-      client_body_temp_path /tmp/client_temp;
-      proxy_temp_path       /tmp/proxy_temp_path;
-      fastcgi_temp_path     /tmp/fastcgi_temp;
-      uwsgi_temp_path       /tmp/uwsgi_temp;
-      scgi_temp_path        /tmp/scgi_temp;
+    server {
+      listen {{ .Values.uiProxy.service.port }};
+      server_name _;
       
-      sendfile on;
-      keepalive_timeout 65;
-      
-      # DNS resolver for dynamic resolution - prevents startup failures
-      resolver {{ .Values.uiProxy.dnsResolver }} valid=10s;
-      
-      server {
-        listen {{ .Values.uiProxy.service.port }};
-        server_name _;
-        
-        # Health check endpoint - exact match takes precedence
-        location = /health {
-          return 200 "healthy\n";
-        }
-        
-        # Flink deployments - specific routes under /flink/
-        {{- range .Values.pipelines }}
-        {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
-        # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
-        location ~ ^/flink/{{ $metadataName }}(/.*)?$ {
-          set $upstream "{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.{{ $.Values.uiProxy.clusterDomain }}:8081";
-          set $path $1;
-          proxy_pass http://$upstream$path;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-        }
-        {{- end }}
-        
-        {{- if .Values.heimdall.enabled }}
-        # Route everything else to heimdall (catch-all)
-        location / {
-          set $heimdall_upstream "{{ include "parent.heimdall.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.uiProxy.clusterDomain }}:{{ .Values.heimdall.service.port }}";
-          proxy_pass http://$heimdall_upstream;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-        }
-        {{- else }}
-        # Fallback: show deployment list if heimdall disabled
-        location = / {
-          add_header Content-Type text/html;
-          return 200 '<h1>Flink Deployments</h1>{{- range .Values.pipelines }}{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}<p><a href="/flink/{{ $metadataName }}/">{{ .name }} ({{ $metadataName }})</a></p>{{- end }}';
-        }
-        {{- end }}
+      # Health check endpoint - exact match takes precedence
+      location = /health {
+        return 200 "healthy\n";
       }
+      
+      # Flink deployments - specific routes under /flink/
+      {{- range .Values.pipelines }}
+      {{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}
+      # Route for {{ .name }} pipeline (metadata: {{ $metadataName }}) under /flink/
+      location ~ ^/flink/{{ $metadataName }}(/.*)?$ {
+        set $upstream "{{ $metadataName }}-rest.{{ $.Release.Namespace }}.svc.{{ $.Values.uiProxy.clusterDomain }}:8081";
+        set $path $1;
+        proxy_pass http://$upstream$path;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+      {{- end }}
+      
+      {{- if .Values.heimdall.enabled }}
+      # Route everything else to heimdall (catch-all)
+      location / {
+        set $heimdall_upstream "{{ include "parent.heimdall.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.uiProxy.clusterDomain }}:{{ .Values.heimdall.service.port }}";
+        proxy_pass http://$heimdall_upstream;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+      {{- else }}
+      # Fallback: show deployment list if heimdall disabled
+      location = / {
+        add_header Content-Type text/html;
+        return 200 '<h1>Flink Deployments</h1>{{- range .Values.pipelines }}{{- $metadataName := printf "%s-%d" .name (default 0 .resetNonce | int) }}<p><a href="/flink/{{ $metadataName }}/">{{ .name }} ({{ $metadataName }})</a></p>{{- end }}';
+      }
+      {{- end }}
     }
 {{- end }}
