@@ -62,7 +62,7 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
             - name: tmp
-              mountPath: /tmp/
+              mountPath: /tmp
       {{- with .Values.uiProxy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
