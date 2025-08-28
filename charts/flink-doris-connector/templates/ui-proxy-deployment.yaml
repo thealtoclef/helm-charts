@@ -37,7 +37,7 @@ spec:
         - name: nginx
           securityContext:
             {{- toYaml .Values.uiProxy.securityContext | nindent 12 }}
-          image: "{{ .Values.uiProxy.image.repository }}:{{ .Values.uiProxy.image.tag }}"
+          image: {{ include "uiProxy.imagePath" . }}
           imagePullPolicy: {{ .Values.uiProxy.image.pullPolicy }}
           ports:
             - name: http

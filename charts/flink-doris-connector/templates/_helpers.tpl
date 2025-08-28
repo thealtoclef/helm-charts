@@ -94,6 +94,16 @@ Create the path of the operator image to use
 {{- end }}
 {{- end }}
 
+{{/*
+Create the path of the ui-proxy image to use
+*/}}
+{{- define "uiProxy.imagePath" -}}
+{{- if .Values.uiProxy.image.digest }}
+{{- .Values.uiProxy.image.repository }}@{{ include "standardize-digest" .Values.uiProxy.image.digest }}
+{{- else }}
+{{- .Values.uiProxy.image.repository }}:{{ default .Chart.AppVersion .Values.uiProxy.image.tag }}
+{{- end }}
+{{- end }}
 
 {{/* Get publicDB value for a source with global fallback */}}
 {{- define "auth_proxy.getPublicDB" -}}

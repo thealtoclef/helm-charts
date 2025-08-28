@@ -60,3 +60,22 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "standardize-digest" -}}
+{{- $digest := . -}}
+{{- if not (hasPrefix "sha256:" $digest) -}}
+{{- $digest = printf "sha256:%s" $digest -}}
+{{- end -}}
+{{- $digest -}}
+{{- end -}}
+
+{{/*
+Create the path of the heimdall image to use
+*/}}
+{{- define "heimdall.imagePath" -}}
+{{- if .Values.image.digest }}
+{{- .Values.image.repository }}@{{ include "standardize-digest" .Values.image.digest }}
+{{- else }}
+{{- .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
+{{- end }}
+{{- end }}
