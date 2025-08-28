@@ -104,7 +104,9 @@ spec:
           {{- end }}
       {{- end }}
   jobManager:
-    replicas: {{ default $.Values.global.jobManager.replicas (and .jobManager .jobManager.replicas) }}
+    {{- with default $.Values.global.jobManager.replicas (and .jobManager .jobManager.replicas) }}
+    replicas: {{ . }}
+    {{- end }}
     resource:
       {{- $mergedJobManagerResource := merge (default dict (and .jobManager .jobManager.resource)) $.Values.global.jobManager.resource }}
       {{- $mergedJobManagerResource | toYaml | nindent 6 }}
@@ -112,7 +114,9 @@ spec:
       {{- $mergedJobManagerPodTemplate := merge (default dict (and .jobManager .jobManager.podTemplate)) (default dict $.Values.global.jobManager.podTemplate) }}
       {{- $mergedJobManagerPodTemplate | toYaml | nindent 6 }}
   taskManager:
-    replicas: {{ default $.Values.global.taskManager.replicas (and .taskManager .taskManager.replicas) }}
+    {{- with default $.Values.global.taskManager.replicas (and .taskManager .taskManager.replicas) }}
+    replicas: {{ . }}
+    {{- end }}
     resource:
       {{- $mergedTaskManagerResource := merge (default dict (and .taskManager .taskManager.resource)) $.Values.global.taskManager.resource }}
       {{- $mergedTaskManagerResource | toYaml | nindent 6 }}
