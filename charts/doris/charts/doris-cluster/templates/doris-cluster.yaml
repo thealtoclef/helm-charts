@@ -31,17 +31,18 @@ spec:
     {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
   {{- end }}
   
-  {{- if .Values.computeGroups }}
+  {{- if .Values.cgSpec.groups }}
   computeGroups:
-  {{- range .Values.computeGroups }}
+  {{- range .Values.cgSpec.groups }}
+  {{- $mergedConfig := include "doris-cluster.mergeCgSpecConfig" (dict "cg" . "root" $) | fromYaml }}
   - uniqueId: {{ .uniqueId }}
-    {{- with .enableWorkloadGroup }}
+    {{- with $mergedConfig.enableWorkloadGroup }}
     enableWorkloadGroup: {{ . }}
     {{- end }}
-    {{- with .skipDefaultSystemInit }}
+    {{- with $mergedConfig.skipDefaultSystemInit }}
     skipDefaultSystemInit: {{ . }}
     {{- end }}
-    {{- $componentValues := . }}
+    {{- $componentValues := $mergedConfig }}
     {{- $_ := set $componentValues "component" "cn" }}
     {{- include "doris-cluster.commonSpec" (dict "componentValues" $componentValues "root" $) | nindent 4 }}
   {{- end }}

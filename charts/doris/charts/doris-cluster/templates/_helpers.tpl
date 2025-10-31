@@ -61,7 +61,33 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{/* 
+{{/*
+Merge cgSpec global configuration with individual computeGroup configuration
+*/}}
+{{- define "doris-cluster.mergeCgSpecConfig" -}}
+{{- $global := .root.Values.cgSpec.global -}}
+{{- $cg := .cg -}}
+{{- $merged := dict -}}
+
+{{- /* Copy all global values */}}
+{{- range $key, $value := $global }}
+  {{- $merged = set $merged $key $value }}
+{{- end }}
+
+{{- /* Override with individual computeGroup values (except uniqueId) */}}
+{{- range $key, $value := $cg }}
+  {{- if ne $key "uniqueId" }}
+    {{- $merged = set $merged $key $value }}
+  {{- end }}
+{{- end }}
+
+{{- /* Set required field */}}
+{{- $merged = set $merged "uniqueId" $cg.uniqueId }}
+
+{{- $merged | toYaml }}
+{{- end }}
+
+{{/*
 CommonSpec template for DorisDisaggregatedCluster components
 This template renders all fields from the CommonSpec API
 */}}

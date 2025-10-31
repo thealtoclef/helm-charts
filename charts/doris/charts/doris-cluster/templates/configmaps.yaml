@@ -28,9 +28,10 @@ data:
     {{- .Values.feSpec.conf | nindent 4 }}
 {{- end }}
 
-{{- if .Values.computeGroups }}
-{{- range .Values.computeGroups }}
-{{- if .conf }}
+{{- if .Values.cgSpec.groups }}
+{{- range .Values.cgSpec.groups }}
+{{- $mergedConfig := include "doris-cluster.mergeCgSpecConfig" (dict "cg" . "root" $) | fromYaml }}
+{{- if $mergedConfig.conf }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -43,7 +44,7 @@ metadata:
     uniqueId: {{ .uniqueId }}
 data:
   be.conf: |
-    {{- .conf | nindent 4 }}
+    {{- $mergedConfig.conf | nindent 4 }}
 {{- end }}
 {{- end }}
 {{- end }}

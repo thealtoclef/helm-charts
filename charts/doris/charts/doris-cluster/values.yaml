@@ -33,8 +33,10 @@ feSpec:
   electionNumber: ~
   conf: ~
 
-computeGroups:
-  - uniqueId: ~
-    enableWorkloadGroup: ~
-    skipDefaultSystemInit: ~
-    conf: ~
+cgSpec:
+  # Global config for all compute groups
+  global: {}
+
+  # List of compute groups. Individual computeGroup config will override global config.
+  groups:
+    - uniqueId: ~
