@@ -27,16 +27,21 @@ authSecret: ~
 
 metaService:
   fdb: ~
+  replicas: ~
   conf: ~
 
 feSpec:
   electionNumber: ~
+  replicas: ~
   conf: ~
 
 cgSpec:
   # Global config for all compute groups
-  global: {}
-
+  global:
+    enableWorkloadGroup: ~
+    skipDefaultSystemInit: ~
+    conf: ~
   # List of compute groups. Individual computeGroup config will override global config.
   groups:
     - uniqueId: ~
+      replicas: ~
