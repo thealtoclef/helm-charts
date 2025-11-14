@@ -62,26 +62,44 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Recursive merge function for dictionaries
+*/}}
+{{- define "doris-cluster.mergeDict" -}}
+{{- $base := index . 0 -}}
+{{- $override := index . 1 -}}
+{{- $result := dict -}}
+
+{{- /* Copy all base values */}}
+{{- range $key, $value := $base }}
+  {{- $result = set $result $key $value }}
+{{- end }}
+
+{{- /* Recursively merge override values */}}
+{{- range $key, $value := $override }}
+  {{- if and (kindIs "map" $value) (hasKey $result $key) (kindIs "map" (index $result $key)) }}
+    {{- /* Both are maps, merge recursively */}}
+    {{- $mergedValue := include "doris-cluster.mergeDict" (list (index $result $key) $value) | fromYaml }}
+    {{- $result = set $result $key $mergedValue }}
+  {{- else }}
+    {{- /* Override the value */}}
+    {{- $result = set $result $key $value }}
+  {{- end }}
+{{- end }}
+
+{{- $result | toYaml }}
+{{- end }}
+
+{{/*
 Merge cgSpec global configuration with individual computeGroup configuration
 */}}
 {{- define "doris-cluster.mergeCgSpecConfig" -}}
 {{- $global := .root.Values.cgSpec.global -}}
 {{- $cg := .cg -}}
-{{- $merged := dict -}}
 
-{{- /* Copy all global values */}}
-{{- range $key, $value := $global }}
-  {{- $merged = set $merged $key $value }}
-{{- end }}
+{{- /* Start with recursive merge of global and computeGroup configs */}}
+{{- $merged := include "doris-cluster.mergeDict" (list $global $cg) | fromYaml }}
 
-{{- /* Override with individual computeGroup values (except uniqueId) */}}
-{{- range $key, $value := $cg }}
-  {{- if ne $key "uniqueId" }}
-    {{- $merged = set $merged $key $value }}
-  {{- end }}
-{{- end }}
-
-{{- /* Set required field */}}
+{{- /* Ensure uniqueId is set from computeGroup */}}
 {{- $merged = set $merged "uniqueId" $cg.uniqueId }}
 
 {{- $merged | toYaml }}

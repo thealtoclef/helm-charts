@@ -33,19 +33,24 @@ doris-cluster:
   
   metaService:
     fdb: ~
+    replicas: ~
     conf: ~
   
   feSpec:
     electionNumber: ~
+    replicas: ~
     conf: ~
   
   cgSpec:
     # Global config for all compute groups
-    global: {}
-  
+    global:
+      enableWorkloadGroup: ~
+      skipDefaultSystemInit: ~
+      conf: ~
     # List of compute groups. Individual computeGroup config will override global config.
     groups:
       - uniqueId: ~
+        replicas: ~
 
 doris-operator:
   # Licensed to the Apache Software Foundation (ASF) under one
@@ -260,7 +265,7 @@ fdb-cluster:
 fdb-operator:
   image:
     repository: foundationdb/fdb-kubernetes-operator
-    tag: v2.5.0
+    tag: v2.16.0
     pullPolicy: IfNotPresent
   initContainers:
     7.1:
