@@ -4988,6 +4988,9 @@ spec:
                       - message: persistentVolumeClaimSpec and volumeSpec cannot be
                           set at the same time
                         rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                      - message: either persistentVolumeClaimSpec or volumeSpec must
+                          be set
+                        rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                     persistentVolumes:
                       description: volume template for mountPath
                       items:
@@ -7042,6 +7045,9 @@ spec:
                         - message: persistentVolumeClaimSpec and volumeSpec cannot
                             be set at the same time
                           rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                        - message: either persistentVolumeClaimSpec or volumeSpec
+                            must be set
+                          rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                       type: array
                     replicas:
                       description: |-
@@ -12394,6 +12400,9 @@ spec:
                     - message: persistentVolumeClaimSpec and volumeSpec cannot be
                         set at the same time
                       rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                    - message: either persistentVolumeClaimSpec or volumeSpec must
+                        be set
+                      rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                   persistentVolumes:
                     description: volume template for mountPath
                     items:
@@ -14435,6 +14444,9 @@ spec:
                       - message: persistentVolumeClaimSpec and volumeSpec cannot be
                           set at the same time
                         rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                      - message: either persistentVolumeClaimSpec or volumeSpec must
+                          be set
+                        rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                     type: array
                   replicas:
                     description: |-
@@ -19798,6 +19810,9 @@ spec:
                     - message: persistentVolumeClaimSpec and volumeSpec cannot be
                         set at the same time
                       rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                    - message: either persistentVolumeClaimSpec or volumeSpec must
+                        be set
+                      rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                   persistentVolumes:
                     description: volume template for mountPath
                     items:
@@ -21839,6 +21854,9 @@ spec:
                       - message: persistentVolumeClaimSpec and volumeSpec cannot be
                           set at the same time
                         rule: '!(has(self.persistentVolumeClaimSpec) && has(self.volumeSpec))'
+                      - message: either persistentVolumeClaimSpec or volumeSpec must
+                          be set
+                        rule: (has(self.persistentVolumeClaimSpec) || has(self.volumeSpec))
                     type: array
                   replicas:
                     description: |-
