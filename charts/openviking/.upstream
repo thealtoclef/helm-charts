@@ -1,0 +1,7 @@
+# Provenance + sync metadata for this vendored chart.
+# `make sync-openviking` (or `make sync`) re-pulls from upstream; see scripts/sync-chart.sh.
+# UPSTREAM_SHA is updated by the sync script after each sync.
+UPSTREAM_REPO=https://github.com/volcengine/OpenViking.git
+UPSTREAM_PATH=deploy/helm/openviking
+UPSTREAM_REF=main
+UPSTREAM_SHA=cd8580c6f8a50ec44593618b3102799ab0b553fd
